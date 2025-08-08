@@ -26,6 +26,7 @@ import androidx.navigation.NavHostController
 import com.exemplio.geapfitmobile.view.auth.business.BusinessViewModel
 import com.exemplio.geapfitmobile.view.core.components.HeaderSection
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogError
+import com.exemplio.geapfitmobile.view.core.components.ModalDialogSession
 import com.exemplio.geapfitmobile.view.core.navigation.Login
 
 @Composable
@@ -37,7 +38,8 @@ fun BusinessScrenn(
     val uiState by businessViewModel.uiState.collectAsStateWithLifecycle()
     val mockClients by businessViewModel.businessInfo.collectAsState()
 
-    val showModal = remember { mutableStateOf(false) }
+    val showModalErr = remember { mutableStateOf(false) }
+    val showModalSession = remember { mutableStateOf(false) }    
     val modalMessage = remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.initialState) {
@@ -49,17 +51,14 @@ fun BusinessScrenn(
     LaunchedEffect(uiState.errorCode, uiState.errorMessage) {
         if (uiState.errorCode != null && uiState.errorCode != 200) {
             modalMessage.value = uiState.errorMessage ?: "Error para conectar con el servidor"
-            showModal.value = true
+            showModalErr.value = true
         }
     }
 
     Scaffold(
         topBar = {
             HeaderSection("Negocio", onCloseSession = {
-                businessViewModel.closeSession()
-                principalNavHost.navigate(Login) {
-                    popUpTo(Login) { inclusive = true }
-                }
+                showModalSession.value = true
             })
         },
     ) { padding ->
@@ -83,14 +82,32 @@ fun BusinessScrenn(
                 }
             }
         }
-        if (showModal.value) {
+        if (showModalErr.value) {
             ModalDialogError(
                 message = modalMessage.value,
                 onDismiss = {
-                    showModal.value = false;
+                    showModalErr.value = false;
                     modalMessage.value = ""
                     uiState.errorCode = null
                     uiState.errorMessage = null
+                }
+            )
+        }
+        if (showModalSession.value) {
+            ModalDialogSession(
+                message = "¿Desea cerrar sesión?",
+                onDismiss = {
+                    showModalSession.value = false;
+                    modalMessage.value = ""
+                    uiState.errorCode = null
+                    uiState.errorMessage = null
+                },
+                onLogout = {
+                    showModalSession.value = false;
+                    businessViewModel.closeSession()
+                    principalNavHost.navigate(Login) {
+                        popUpTo(Login) { inclusive = true }
+                    }
                 }
             )
         }

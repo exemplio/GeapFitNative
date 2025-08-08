@@ -44,23 +44,16 @@ class ApiServicesImpl(
     }
 
     private fun urlAuth(unencodedPath: String, queryParameters: Map<String, Any>? = null): Result<HttpUrl> {
-        val isOnline = isOnlineProvider.isOnline()
         return try {
-            if (isOnline) {
-                val builder = HttpUrl.Builder()
-                    .scheme("https")
-                    .host(MyUtils.baseAuth)
-                    .addEncodedPathSegments(unencodedPath)
-                queryParameters?.forEach { (key, value) ->
-                    builder.addQueryParameter(key, value.toString())
-                }
-                println("Http URL: ${builder.build()}")
-                Result.success(builder.build())
+            val builder = HttpUrl.Builder()
+                .scheme("https")
+                .host(MyUtils.baseAuth)
+                .addEncodedPathSegments(unencodedPath)
+            queryParameters?.forEach { (key, value) ->
+                builder.addQueryParameter(key, value.toString())
             }
-            else {
-                println("isOnline3")
-                Result.failure(IOException("No posee conexión a internet"))
-            }
+            println("Http URL: ${builder.build()}")
+            Result.success(builder.build())
         } catch (e: Exception) {
             Log.e("UrlError", "Unexpected error in url builder", e)
             return Result.failure(e)

@@ -1,6 +1,5 @@
 package com.exemplio.geapfitmobile.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -13,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = InstaBlue,
+    primary = CustomBlue,
     onPrimary = Color.White,
     background = Gray20,
     onBackground = Gray70,
@@ -23,7 +22,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = InstaBlue,
+    primary = CustomBlue,
     onPrimary = Color.Black,
     background = Gray100,
     onSurface = Color.Black,

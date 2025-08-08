@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.exemplio.geapfitmobile.view.core.navigation.TabScreens.*
+import com.exemplio.geapfitmobile.view.screens.singleChat.SingleChatScreen
 
 @Composable
 fun NavigationBottomWrapper(modifier: Modifier = Modifier, principalNavHost:NavHostController ,navHostController: NavHostController) {
@@ -28,7 +29,7 @@ fun NavigationBottomWrapper(modifier: Modifier = Modifier, principalNavHost:NavH
             BusinessScrenn(principalNavHost = principalNavHost)
         }
         composable<TabProfile> {
-            ChatsScreen(principalNavHost = principalNavHost)
+            ChatsScreen(principalNavHost = principalNavHost, navController = navHostController)
         }
     }
 }

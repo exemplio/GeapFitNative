@@ -25,6 +25,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.exemplio.geapfitmobile.view.core.components.HeaderSection
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogError
+import com.exemplio.geapfitmobile.view.core.components.ModalDialogSession
 import com.exemplio.geapfitmobile.view.core.navigation.Login
 import com.exemplio.geapfitmobile.view.home.screens.library.LibraryViewModel
 
@@ -38,7 +39,8 @@ fun LibraryScreen(
     val uiState by libraryViewModel.uiState.collectAsStateWithLifecycle()
     val mockClients by libraryViewModel.library.collectAsState()
 
-    val showModal = remember { mutableStateOf(false) }
+    val showModalErr = remember { mutableStateOf(false) }
+    val showModalSession = remember { mutableStateOf(false) }
     val modalMessage = remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.initialState) {
@@ -50,17 +52,14 @@ fun LibraryScreen(
     LaunchedEffect(uiState.errorCode, uiState.errorMessage) {
         if (uiState.errorCode != null && uiState.errorCode != 200) {
             modalMessage.value = uiState.errorMessage ?: "Error para conectar con el servidor"
-            showModal.value = true
+            showModalErr.value = true
         }
     }
 
     Scaffold(
         topBar = {
             HeaderSection("Librería", onCloseSession = {
-                libraryViewModel.closeSession()
-                principalNavHost.navigate(Login) {
-                    popUpTo(Login) { inclusive = true }
-                }
+                showModalSession.value = true
             })
         },
     ) { padding ->
@@ -92,14 +91,32 @@ fun LibraryScreen(
                 }
             }
         }
-        if (showModal.value) {
+        if (showModalErr.value) {
             ModalDialogError(
                 message = modalMessage.value,
                 onDismiss = {
-                    showModal.value = false;
+                    showModalErr.value = false;
                     modalMessage.value = ""
                     uiState.errorCode = null
                     uiState.errorMessage = null
+                }
+            )
+        }
+        if (showModalSession.value) {
+            ModalDialogSession(
+                message = "¿Desea cerrar sesión?",
+                onDismiss = {
+                    showModalSession.value = false;
+                    modalMessage.value = ""
+                    uiState.errorCode = null
+                    uiState.errorMessage = null
+                },
+                onLogout = {
+                    showModalSession.value = false;
+                    libraryViewModel.closeSession()
+                    principalNavHost.navigate(Login) {
+                        popUpTo(Login) { inclusive = true }
+                    }
                 }
             )
         }

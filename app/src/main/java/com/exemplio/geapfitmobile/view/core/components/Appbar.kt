@@ -2,6 +2,7 @@ package com.exemplio.geapfitmobile.view.core.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -42,20 +43,28 @@ fun TopBar(onCloseSession: () -> Unit) {
                 fontSize = 22.sp
             )
         },
-//        navigationIcon = {
-//            IconButton(onClick = { /* Handle back */ }) {
-//                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
-//            }
-//        },
         navigationIcon = {
-            Box(
-                Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.background),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("DM", color = Color.White, fontWeight = FontWeight.Bold)
+            Row {
+                IconButton(onClick = { /* Handle back */ }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
+                }
+                Box(
+                    Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.background),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("DM", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+                }
+            }
+        },
+        actions = {
+            IconButton(onClick = { /* Ayuda */ }) {
+                Icon(Icons.Default.Person, contentDescription = "Ayuda")
+            }
+            IconButton(onClick = { onCloseSession() }) {
+                Icon(Icons.Default.ExitToApp, contentDescription = "Exit")
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.background),

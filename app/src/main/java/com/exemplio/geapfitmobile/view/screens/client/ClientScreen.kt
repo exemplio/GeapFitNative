@@ -26,6 +26,7 @@ import androidx.navigation.NavHostController
 import com.exemplio.geapfitmobile.view.core.components.ErrorBanner
 import com.exemplio.geapfitmobile.view.core.components.HeaderSection
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogError
+import com.exemplio.geapfitmobile.view.core.components.ModalDialogSession
 import com.exemplio.geapfitmobile.view.core.navigation.Login
 import com.exemplio.geapfitmobile.view.screens.client.ClientViewModel
 
@@ -38,7 +39,8 @@ fun ClientScreen(
     val uiState by clientViewModel.uiState.collectAsStateWithLifecycle()
     val mockClients by clientViewModel.clients.collectAsState()
 
-    val showModal = remember { mutableStateOf(false) }
+    val showModalErr = remember { mutableStateOf(false) }
+    val showModalSession = remember { mutableStateOf(false) }
     val modalMessage = remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.initialState) {
@@ -50,22 +52,18 @@ fun ClientScreen(
     LaunchedEffect(uiState.errorCode, uiState.errorMessage) {
         if (uiState.errorCode != null && uiState.errorCode != 200) {
             modalMessage.value = uiState.errorMessage ?: "Error para conectar con el servidor"
-            showModal.value = true
+            showModalErr.value = true
         }
     }
 
     Scaffold(
         topBar = {
             HeaderSection("Cliente", onCloseSession = {
-                showModal.value = true
-//                clientViewModel.closeSession()
-//                principalNavHost.navigate(Login) {
-//                    popUpTo(Login) { inclusive = true }
-//                }
+                showModalSession.value = true
             })
         },
     ) { padding ->
-        AnimatedContent(targetState = uiState) { state ->
+        AnimatedContent(targetState = uiState, label = "") { state ->
             if (state.loaded) {
                 Column(
                     modifier = Modifier
@@ -81,24 +79,37 @@ fun ClientScreen(
                 }
             }
             if (state.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
         }
-        if (showModal.value) {
+        if (showModalErr.value) {
             ModalDialogError(
                 message = modalMessage.value,
                 onDismiss = {
-                    showModal.value = false;
+                    showModalErr.value = false;
                     modalMessage.value = ""
                     uiState.errorCode = null
                     uiState.errorMessage = null
+                }
+            )
+        }
+        if (showModalSession.value) {
+            ModalDialogSession(
+                message = "¿Desea cerrar sesión?",
+                onDismiss = {
+                    showModalSession.value = false;
+                    modalMessage.value = ""
+                    uiState.errorCode = null
+                    uiState.errorMessage = null
+                },
+                onLogout = {
+                    showModalSession.value = false;
+                    clientViewModel.closeSession()
+                    principalNavHost.navigate(Login) {
+                        popUpTo(Login) { inclusive = true }
+                    }
                 }
             )
         }

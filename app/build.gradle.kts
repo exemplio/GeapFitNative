@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.kalendar.foundation)
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     //Testing
     testImplementation(libs.junit)

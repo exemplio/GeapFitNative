@@ -23,9 +23,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.exemplio.geapfitmobile.view.core.components.HeaderSection
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogError
+import com.exemplio.geapfitmobile.view.core.components.ModalDialogSession
 import com.exemplio.geapfitmobile.view.screens.chats.ChatsViewModel
 import com.exemplio.geapfitmobile.view.core.components.TopBar
 import com.exemplio.geapfitmobile.view.core.navigation.Login
+import com.exemplio.geapfitmobile.view.core.navigation.TabScreens
 
 data class ChatItem(
     val initials: String,
@@ -46,12 +48,14 @@ val chats = listOf(
 @Composable
 fun ChatsScreen(
     principalNavHost: NavHostController,
+    navController: NavHostController,
     chatsViewModel: ChatsViewModel = hiltViewModel()
 ) {
     val uiState by chatsViewModel.uiState.collectAsStateWithLifecycle()
     val mockClients by chatsViewModel.chats.collectAsState()
 
-    val showModal = remember { mutableStateOf(false) }
+    val showModalErr = remember { mutableStateOf(false) }
+    val showModalSession = remember { mutableStateOf(false) }
     val modalMessage = remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.initialState) {
@@ -63,7 +67,7 @@ fun ChatsScreen(
     LaunchedEffect(uiState.errorCode, uiState.errorMessage) {
         if (uiState.errorCode != null && uiState.errorCode != 200) {
             modalMessage.value = uiState.errorMessage ?: "Error para conectar con el servidor"
-            showModal.value = true
+            showModalErr.value = true
         }
     }
 
@@ -72,10 +76,7 @@ fun ChatsScreen(
     Scaffold(
         topBar = {
             HeaderSection("Chats", onCloseSession = {
-                chatsViewModel.closeSession()
-                principalNavHost.navigate(Login) {
-                    popUpTo(Login) { inclusive = true }
-                }
+                showModalSession.value = true
             })
         },
     ) { padding ->
@@ -92,7 +93,7 @@ fun ChatsScreen(
                     MassMessageButton()
                     SearchField()
                     UnreadBanner(unreadCount = 0)
-                    ChatListSection(chats)
+                    ChatListSection(chats,principalNavHost)
                 }
             }
             if (state.isLoading) {
@@ -101,14 +102,32 @@ fun ChatsScreen(
                 }
             }
         }
-        if (showModal.value) {
+        if (showModalErr.value) {
             ModalDialogError(
                 message = modalMessage.value,
                 onDismiss = {
-                    showModal.value = false;
+                    showModalErr.value = false;
                     modalMessage.value = ""
                     uiState.errorCode = null
                     uiState.errorMessage = null
+                }
+            )
+        }
+        if (showModalSession.value) {
+            ModalDialogSession(
+                message = "¿Desea cerrar sesión?",
+                onDismiss = {
+                    showModalSession.value = false;
+                    modalMessage.value = ""
+                    uiState.errorCode = null
+                    uiState.errorMessage = null
+                },
+                onLogout = {
+                    showModalSession.value = false;
+                    chatsViewModel.closeSession()
+                    principalNavHost.navigate(Login) {
+                        popUpTo(Login) { inclusive = true }
+                    }
                 }
             )
         }
@@ -243,20 +262,20 @@ fun UnreadBanner(unreadCount: Int) {
 }
 
 @Composable
-fun ChatListSection(chats: List<ChatItem>) {
+fun ChatListSection(chats: List<ChatItem>, navController: NavHostController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 4.dp)
     ) {
         items(chats) { chat ->
-            ChatListItem(chat)
+            ChatListItem(chat, navController)
         }
     }
 }
 
 @Composable
-fun ChatListItem(chat: ChatItem) {
+fun ChatListItem(chat: ChatItem, navController: NavHostController) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -264,7 +283,7 @@ fun ChatListItem(chat: ChatItem) {
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.background)
             .padding(12.dp)
-            .clickable { /* Navigate to chat */ },
+            .clickable { navController.navigate(TabScreens.TabSingleChat) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(

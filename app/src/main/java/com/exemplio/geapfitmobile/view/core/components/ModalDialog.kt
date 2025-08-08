@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -29,6 +31,7 @@ fun ModalDialogError(message: String, onDismiss: () -> Unit) {
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                println("PRUEBA SI PASA POR AQUI")
                 Text(text = "Error", style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = message, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
@@ -58,13 +61,17 @@ fun ModalDialogSession(message: String, onDismiss: () -> Unit, onLogout : () -> 
                 Text(text = message, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
                 Spacer(modifier = Modifier.height(24.dp))
                 Row {
-                    Button(onClick = onDismiss) {
-                        Text("No")
+                    Button(onClick = onDismiss,
+                        colors = ButtonColors(contentColor = Color.Gray,
+                            containerColor = Color.Gray,
+                            disabledContainerColor = Color.Transparent,
+                            disabledContentColor = Color.Gray)) {
+                        Text("No", color = MaterialTheme.colorScheme.onPrimary)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = onLogout) {
-                        Text("Si")
+                        Text("Si", color = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             }

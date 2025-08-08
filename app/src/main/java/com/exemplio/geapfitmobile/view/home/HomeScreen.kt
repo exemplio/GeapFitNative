@@ -43,9 +43,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.exemplio.geapfitmobile.R
 import com.exemplio.geapfitmobile.view.core.components.ErrorBanner
 import com.exemplio.geapfitmobile.view.core.navigation.BottomNavigation
@@ -54,7 +57,9 @@ import com.exemplio.geapfitmobile.view.core.navigation.NavigationBottomWrapper
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(principalNavigaton: NavHostController,homeViewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(principalNavigaton: NavHostController,
+               arguments: List<NamedNavArgument> = listOf(navArgument("query") { defaultValue = ""; type = NavType.StringType }),
+               homeViewModel: HomeViewModel = hiltViewModel()) {
 
     val tabNavController = rememberNavController()
     val navStackEntry by tabNavController.currentBackStackEntryAsState()
