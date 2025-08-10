@@ -1,5 +1,4 @@
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,7 +31,6 @@ import com.exemplio.geapfitmobile.view.screens.client.ClientViewModel
 
 @Composable
 fun ClientScreen(
-    principalNavHost: NavHostController,
     clientViewModel: ClientViewModel = hiltViewModel()
 ) {
 
@@ -107,7 +105,7 @@ fun ClientScreen(
                 onLogout = {
                     showModalSession.value = false;
                     clientViewModel.closeSession()
-                    principalNavHost.navigate(Login) {
+                    GlobalNav.root?.navigate(Login) {
                         popUpTo(Login) { inclusive = true }
                     }
                 }
@@ -182,7 +180,7 @@ fun SearchAndFilterSection() {
 }
 
 @Composable
-fun ClientListSection(clients: List<ClientFields>) {
+fun ClientListSection(clients: List<Client>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -195,7 +193,7 @@ fun ClientListSection(clients: List<ClientFields>) {
 }
 
 @Composable
-fun ClientListItem(client: ClientFields) {
+fun ClientListItem(client: Client) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -212,15 +210,17 @@ fun ClientListItem(client: ClientFields) {
                 .background(Color(0xFF703EFE)),
             contentAlignment = Alignment.Center
         ) {
-            Text(client.initials.stringValue, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text("PF", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
         Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(client.name.stringValue, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(client.lastActivity.stringValue, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            Text(client.displayName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+//            Text(client.lastActivity.stringValue, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            Text(client.createdAt, fontWeight = FontWeight.Bold, fontSize = 13.sp)
         }
         Text(
-            client.status.stringValue,
+//            client.status.stringValue,
+            client.email,
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)

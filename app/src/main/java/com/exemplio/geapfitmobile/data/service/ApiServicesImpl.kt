@@ -1,6 +1,6 @@
 package com.exemplio.geapfitmobile.data.service
 
-import ClientDocument
+import Client
 import ClientsResponse
 import ErrorResponse
 import HttpUtil
@@ -97,7 +97,7 @@ class ApiServicesImpl(
         val path = StaticNamesPath.passwordGrant.path
         val uri = urlAuth(
             path,
-            mapOf("key" to MyUtils.apiKey)
+//            mapOf("key" to MyUtils.apiKey)
         )
         val headers = mapOf("Content-Type" to "application/json")
         return httpCall(
@@ -202,6 +202,54 @@ class ApiServicesImpl(
                 client.newCall(req).execute()
             },
             serializer = ClientsResponse.serializer()
+        )
+    }
+
+    suspend fun getMessages(): Resultado<ClientsResponse?> {
+        val path = StaticNamesPath.getMessages.path
+        val uri = url(
+            path,
+//            mapOf("key" to MyUtils.apiKey)
+        )
+        val headers = mapOf("Content-Type" to "application/json")
+        val httpUrl = uri.getOrNull()
+            ?: throw uri.exceptionOrNull() ?: Exception("Invalid URL")
+        return httpCall(
+            f = { client ->
+                val req = Request.Builder()
+                    .url(httpUrl)
+                    .get()
+                    .headers(headers.toHeaders())
+                    .build()
+                client.newCall(req).execute()
+            },
+            serializer = ClientsResponse.serializer()
+        )
+    }
+
+    suspend fun sendMessage(request: PasswordGrantEntity): Resultado<VerifyPasswordResponse?> {
+        val path = StaticNamesPath.getMessages.path
+        val uri = url(
+            path,
+//            mapOf("key" to MyUtils.apiKey)
+        )
+        val headers = mapOf("Content-Type" to "application/json")
+        val httpUrl = uri.getOrNull()
+            ?: throw uri.exceptionOrNull() ?: Exception("Invalid URL")
+        return httpCall(
+            f = { client ->
+                val mediaType = "application/json; charset=utf-8".toMediaType()
+                val body = Json.encodeToString(request).toRequestBody(mediaType)
+                val httpUrl = uri.getOrNull()
+                    ?: throw uri.exceptionOrNull() ?: Exception("Invalid URL")
+                val req = Request.Builder()
+                    .url(httpUrl)
+                    .post(body)
+                    .headers(headers.toHeaders())
+                    .build()
+                client.newCall(req).execute()
+            },
+            serializer = VerifyPasswordResponse.serializer()
         )
     }
 }

@@ -19,16 +19,16 @@ android {
         applicationId = "com.exemplio.geapfitmobile"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField ("String", "AUTH_ID", "\"dfb8aca9-5259-4582-ad81-9ffe0ae75ad3\"")
-        buildConfigField ("String", "CONTEXT_PATH", "\"v1/projects/loginproject-66446/databases/(default)/documents\"")
-        buildConfigField ("String", "CONTEXT_AUTH_PATH", "\"v1/accounts\"")
+        buildConfigField ("String", "CONTEXT_PATH", "\"api/\"")
+        buildConfigField ("String", "CONTEXT_AUTH_PATH", "\"api/login/\"")
         buildConfigField ("String", "CLIENT_ID", "\"your_client_id_value\"")
-        buildConfigField ("String", "API_URL", "\"firestore.googleapis.com\"")
-        buildConfigField ("String", "API_AUTH_URL", "\"identitytoolkit.googleapis.com\"")
+        buildConfigField ("String", "API_URL", "\"express-mongo-cobq.onrender.com\"")
+        buildConfigField ("String", "API_AUTH_URL", "\"express-mongo-cobq.onrender.com\"")
         buildConfigField ("String", "API_KEY", "\"AIzaSyCNGkGWhHJU8vSBEY37RYnDxTTQAC4sk-k\"")
     }
 

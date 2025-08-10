@@ -1,6 +1,5 @@
 package com.exemplio.geapfitmobile.view.auth.login
 
-import ClientDocument
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
 import com.exemplio.geapfitmobile.domain.entity.PasswordGrantEntity
 import com.exemplio.geapfitmobile.data.model.Resultado

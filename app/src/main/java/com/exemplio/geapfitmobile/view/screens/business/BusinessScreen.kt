@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.exemplio.geapfitmobile.view.auth.business.BusinessViewModel
+import com.exemplio.geapfitmobile.view.screens.business.BusinessViewModel
 import com.exemplio.geapfitmobile.view.core.components.HeaderSection
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogError
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogSession
@@ -31,7 +31,6 @@ import com.exemplio.geapfitmobile.view.core.navigation.Login
 
 @Composable
 fun BusinessScrenn(
-    principalNavHost: NavHostController,
     businessViewModel: BusinessViewModel = hiltViewModel()
 ) {
 
@@ -105,7 +104,7 @@ fun BusinessScrenn(
                 onLogout = {
                     showModalSession.value = false;
                     businessViewModel.closeSession()
-                    principalNavHost.navigate(Login) {
+                    GlobalNav.root?.navigate(Login) {
                         popUpTo(Login) { inclusive = true }
                     }
                 }

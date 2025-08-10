@@ -1,6 +1,6 @@
 package com.exemplio.geapfitmobile.view.screens.agenda
 
-import ClientFields
+import Client
 import ClientsResponse
 import android.util.Log
 import android.util.Patterns
@@ -24,8 +24,8 @@ class AgendaViewModel @Inject constructor(private val apiService: ApiServicesImp
 
     private val _uiState = MutableStateFlow(AgendaUiState())
     val uiState: StateFlow<AgendaUiState> = _uiState
-    private val _agendas = MutableStateFlow<List<ClientFields>>(emptyList())
-    val agendas: StateFlow<List<ClientFields>> = _agendas
+    private val _agendas = MutableStateFlow<List<Client>>(emptyList())
+    val agendas: StateFlow<List<Client>> = _agendas
 
     fun getAgenda() {
         loadingState(true)
@@ -41,7 +41,7 @@ class AgendaViewModel @Inject constructor(private val apiService: ApiServicesImp
                         if (response.success) {
                             viewModelScope.launch {
                                 val agendaFieldsList =
-                                    response?.obj?.documents?.map { it.fields } ?: emptyList()
+                                    response?.obj?.data?.map { it } ?: emptyList()
                                 _agendas.value = agendaFieldsList
                             }
                             _uiState.update {

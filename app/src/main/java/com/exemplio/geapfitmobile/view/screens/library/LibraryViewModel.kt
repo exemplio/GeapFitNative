@@ -1,6 +1,6 @@
 package com.exemplio.geapfitmobile.view.home.screens.library
 
-import ClientFields
+import Client
 import ClientsResponse
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -22,8 +22,8 @@ class LibraryViewModel @Inject constructor(private val apiService: ApiServicesIm
 
     private val _uiState = MutableStateFlow(LibraryUiState())
     val uiState: StateFlow<LibraryUiState> = _uiState
-    private val _library = MutableStateFlow<List<ClientFields>>(emptyList())
-    val library: StateFlow<List<ClientFields>> = _library
+    private val _library = MutableStateFlow<List<Client>>(emptyList())
+    val library: StateFlow<List<Client>> = _library
 
     fun getClients() {
         loadingState(true)
@@ -36,7 +36,7 @@ class LibraryViewModel @Inject constructor(private val apiService: ApiServicesIm
                 if (respuesta != null) {
                     if (response.success) {
                         viewModelScope.launch {
-                            val clientFieldsList = response?.obj?.documents?.map { it.fields } ?: emptyList()
+                            val clientFieldsList = response?.obj?.data?.map { it } ?: emptyList()
                             _library.value = clientFieldsList
                         }
                         _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }

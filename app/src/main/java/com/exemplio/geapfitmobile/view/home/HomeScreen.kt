@@ -80,8 +80,7 @@ fun HomeScreen(principalNavigaton: NavHostController,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
-                    .padding(bottom = bottomPadding), navHostController = tabNavController,
-                principalNavHost = principalNavigaton
+                    .padding(bottom = bottomPadding), navHostController = tabNavController
             )
         }
 }

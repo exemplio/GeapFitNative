@@ -1,4 +1,3 @@
-import com.exemplio.geapfitmobile.data.model.Message
 import com.exemplio.geapfitmobile.data.model.Resultado
 import com.geapfit.utils.translate
 import okhttp3.Response
@@ -24,7 +23,6 @@ object HttpUtil {
 
             202, 422 -> {
                 println("Codigo de respuesta: ${response.code}")
-                val message = Message(jsonElement.toString())
                 val errorMsg = error?.error
                 var error = ""
                 if (errorMsg != null) {
@@ -33,7 +31,7 @@ object HttpUtil {
                 if (error.isEmpty()) {
                     error = "EMPTY_ERROR"
                 }
-                Resultado.msg<T?>(message, errorMessage = error)
+                Resultado.failMsg<T?>(errorMessage = error, error = response.code)
             }
 
             400 -> {

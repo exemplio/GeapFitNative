@@ -3,29 +3,26 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ClientsResponse(
-    val documents: List<ClientDocument>
+    val success: Boolean,
+    val data: List<Client>,
+    val pagination: Pagination
 )
 
 @Serializable
-data class ClientDocument(
-    val name: String,
-    val fields: ClientFields,
-    val createTime: String,
-    val updateTime: String
+data class Pagination(
+    val page: Int,
+    val limit: Int,
+    val total: Int,
+    val pages: Int
 )
 
 @Serializable
-data class ClientFields(
-    val id: StringValue,
-    val status: StringValue,
-    val initials: StringValue,
-    val updateTime: StringValue,
-    val lastActivity: StringValue,
-    val createTime: StringValue,
-    val name: StringValue
-)
-
-@Serializable
-data class StringValue(
-    val stringValue: String
+data class Client(
+    val username: String,
+    val userId: String,
+    val displayName: String,
+    val email: String,
+    @SerialName("_id") val id: String,
+    val createdAt: String,
+    @SerialName("__v") val version: Int? = null
 )

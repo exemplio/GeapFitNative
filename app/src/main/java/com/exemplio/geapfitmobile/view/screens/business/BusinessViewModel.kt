@@ -1,7 +1,6 @@
-package com.exemplio.geapfitmobile.view.auth.business
+package com.exemplio.geapfitmobile.view.screens.business
 
-import ClientDocument
-import ClientFields
+import Client
 import ClientsResponse
 import android.util.Log
 import android.util.Patterns
@@ -25,8 +24,8 @@ class BusinessViewModel @Inject constructor(private val apiService: ApiServicesI
 
     private val _uiState = MutableStateFlow(BusinessUiState())
     val uiState: StateFlow<BusinessUiState> = _uiState
-    private val _businessInfo = MutableStateFlow<List<ClientFields>>(emptyList())
-    val businessInfo: StateFlow<List<ClientFields>> = _businessInfo
+    private val _businessInfo = MutableStateFlow<List<Client>>(emptyList())
+    val businessInfo: StateFlow<List<Client>> = _businessInfo
 
     fun getClients() {
         loadingState(true)
@@ -39,7 +38,7 @@ class BusinessViewModel @Inject constructor(private val apiService: ApiServicesI
                 if (respuesta != null) {
                     if (response.success) {
                         viewModelScope.launch {
-                            val clientFieldsList = response?.obj?.documents?.map { it.fields } ?: emptyList()
+                            val clientFieldsList = response?.obj?.data?.map { it } ?: emptyList()
                             _businessInfo.value = clientFieldsList
                         }
                         _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }

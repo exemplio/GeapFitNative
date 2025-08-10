@@ -1,16 +1,17 @@
 package com.exemplio.geapfitmobile.domain.entity
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
 data class VerifyPasswordResponse(
-    val kind: String,
-    val localId: String,
-    val email: String,
+    val username: String,
+    val userId: String,
     val displayName: String,
-    val idToken: String,
-    val registered: Boolean
+    val email: String,
+    @SerialName("_id") val id: String,
+    val createdAt: String
 ) {
     fun toJson(): String = Json.encodeToString(serializer(), this)
 

@@ -1,6 +1,6 @@
 package com.exemplio.geapfitmobile.view.screens.chats
 
-import ClientFields
+import Client
 import ClientsResponse
 import android.util.Log
 import android.util.Patterns
@@ -23,8 +23,8 @@ class ChatsViewModel @Inject constructor(private val apiService: ApiServicesImpl
 
     private val _uiState = MutableStateFlow(ChatsUiState())
     val uiState: StateFlow<ChatsUiState> = _uiState
-    private val _chats = MutableStateFlow<List<ClientFields>>(emptyList())
-    val chats: StateFlow<List<ClientFields>> = _chats
+    private val _chats = MutableStateFlow<List<Client>>(emptyList())
+    val chats: StateFlow<List<Client>> = _chats
 
     fun getClients() {
         loadingState(true)
@@ -37,7 +37,7 @@ class ChatsViewModel @Inject constructor(private val apiService: ApiServicesImpl
                 if (respuesta != null) {
                     if (response.success) {
                         viewModelScope.launch {
-                            val clientFieldsList = response?.obj?.documents?.map { it.fields } ?: emptyList()
+                            val clientFieldsList = response?.obj?.data?.map { it } ?: emptyList()
                             _chats.value = clientFieldsList
                         }
                         _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }

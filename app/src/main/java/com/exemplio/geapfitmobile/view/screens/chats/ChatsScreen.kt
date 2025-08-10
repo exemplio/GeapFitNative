@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,9 +26,9 @@ import com.exemplio.geapfitmobile.view.core.components.HeaderSection
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogError
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogSession
 import com.exemplio.geapfitmobile.view.screens.chats.ChatsViewModel
-import com.exemplio.geapfitmobile.view.core.components.TopBar
 import com.exemplio.geapfitmobile.view.core.navigation.Login
 import com.exemplio.geapfitmobile.view.core.navigation.TabScreens
+import com.exemplio.geapfitmobile.view.core.navigation.TabScreens.TabContacts
 
 data class ChatItem(
     val initials: String,
@@ -47,8 +48,6 @@ val chats = listOf(
 
 @Composable
 fun ChatsScreen(
-    principalNavHost: NavHostController,
-    navController: NavHostController,
     chatsViewModel: ChatsViewModel = hiltViewModel()
 ) {
     val uiState by chatsViewModel.uiState.collectAsStateWithLifecycle()
@@ -79,6 +78,16 @@ fun ChatsScreen(
                 showModalSession.value = true
             })
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    GlobalNav.root?.navigate(TabContacts) {
+                    popUpTo(TabContacts) { inclusive = true }
+                }},
+                containerColor = Color.Black,
+                shape = CircleShape
+            ) { Icon(Icons.Default.Add, contentDescription = "Add") }
+        }
     ) { padding ->
         AnimatedContent(targetState = uiState) { state ->
             if (!state.isLoading && state.loaded) {
@@ -93,7 +102,7 @@ fun ChatsScreen(
                     MassMessageButton()
                     SearchField()
                     UnreadBanner(unreadCount = 0)
-                    ChatListSection(chats,principalNavHost)
+                    ChatListSection(chats)
                 }
             }
             if (state.isLoading) {
@@ -125,7 +134,7 @@ fun ChatsScreen(
                 onLogout = {
                     showModalSession.value = false;
                     chatsViewModel.closeSession()
-                    principalNavHost.navigate(Login) {
+                    GlobalNav.root?.navigate(Login) {
                         popUpTo(Login) { inclusive = true }
                     }
                 }
@@ -262,20 +271,20 @@ fun UnreadBanner(unreadCount: Int) {
 }
 
 @Composable
-fun ChatListSection(chats: List<ChatItem>, navController: NavHostController) {
+fun ChatListSection(chats: List<ChatItem>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 4.dp)
     ) {
         items(chats) { chat ->
-            ChatListItem(chat, navController)
+            ChatListItem(chat)
         }
     }
 }
 
 @Composable
-fun ChatListItem(chat: ChatItem, navController: NavHostController) {
+fun ChatListItem(chat: ChatItem) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -283,7 +292,7 @@ fun ChatListItem(chat: ChatItem, navController: NavHostController) {
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.background)
             .padding(12.dp)
-            .clickable { navController.navigate(TabScreens.TabSingleChat) },
+            .clickable { GlobalNav.root?.navigate(TabScreens.TabSingleChat) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(

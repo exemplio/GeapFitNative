@@ -1,4 +1,4 @@
-package com.exemplio.geapfitmobile.view.screens.client
+package com.exemplio.geapfitmobile.view.screens.message
 
 
 import Client
@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
-import com.exemplio.geapfitmobile.view.screens.contacts.ClientUiState
+import com.exemplio.geapfitmobile.view.screens.client.ClientUiState
 import com.geapfit.utils.translate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,17 +21,17 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class ClientViewModel @Inject constructor(private val apiService: ApiServicesImpl) : ViewModel() {
+class MessageViewModel @Inject constructor(private val apiService: ApiServicesImpl) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ClientUiState())
     val uiState: StateFlow<ClientUiState> = _uiState
-    private val _clients = MutableStateFlow<List<Client>>(emptyList())
-    val clients: StateFlow<List<Client>> = _clients
+    private val _message = MutableStateFlow<List<Client>>(emptyList())
+    val message: StateFlow<List<Client>> = _message
 
-    fun getClients() {
+    fun getMessages() {
         loadingState(true)
         viewModelScope.launch(Dispatchers.IO) {
-            val response = apiService.getClients()
+            val response = apiService.getMessages()
             Log.d("ClientViewModel", "Response: $response")
             val respuesta : ClientsResponse? = response.obj
             withContext(Dispatchers.Main) {
@@ -42,7 +42,37 @@ class ClientViewModel @Inject constructor(private val apiService: ApiServicesImp
                         if (response.success) {
                             viewModelScope.launch {
                                 val clientFieldsList = response?.obj?.data?.map { it } ?: emptyList()
-                                _clients.value = clientFieldsList
+                                _message.value = clientFieldsList
+                            }
+                            _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }
+                        } else {
+                            Log.e("ClientViewModel", "Client failed: ${response.errorMessage}")
+                            _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
+                        }
+                    } else {
+                        _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
+                    }
+                    loadingState(false)
+                }
+            }
+        }
+    }
+
+    fun sendSMS() {
+        loadingState(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = apiService.sendMessage()
+            Log.d("ClientViewModel", "Response: $response")
+            val respuesta : ClientsResponse? = response.obj
+            withContext(Dispatchers.Main) {
+                GlobalScope.launch {
+                    delay(500)
+                    Log.d("ClientViewModel", "Respuesta: $respuesta")
+                    if (respuesta != null) {
+                        if (response.success) {
+                            viewModelScope.launch {
+                                val clientFieldsList = response?.obj?.data?.map { it } ?: emptyList()
+                                _message.value = clientFieldsList
                             }
                             _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }
                         } else {

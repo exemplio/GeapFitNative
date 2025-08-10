@@ -48,12 +48,12 @@ class LoginViewModel @Inject constructor(val login: Login, private val cache: Ca
                     if (response.success) {
                         cache.saveLastCredentials(
                             VerifyPasswordResponse(
-                                respuesta?.kind ?: "",
-                                respuesta?.localId ?: "",
-                                respuesta?.email ?: "",
-                                idToken = respuesta?.idToken ?: "",
-                                displayName = respuesta?.displayName ?: "",
-                                registered = respuesta?.registered ?: false,
+                                respuesta?.username ?: "",
+                                respuesta?.userId ?: "",
+                                respuesta?.displayName ?: "",
+                                email = respuesta?.email ?: "",
+                                id = respuesta?.id ?: "",
+                                createdAt = respuesta?.createdAt ?: "",
                             )
                         )
                         _uiState.update { it.copy(isUserLogged = true, errorCode = null, errorMessage = null) }

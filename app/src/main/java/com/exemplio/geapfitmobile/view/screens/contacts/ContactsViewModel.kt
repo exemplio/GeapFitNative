@@ -1,4 +1,4 @@
-package com.exemplio.geapfitmobile.view.screens.client
+package com.exemplio.geapfitmobile.view.screens.contacts
 
 
 import Client
@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
-import com.exemplio.geapfitmobile.view.screens.contacts.ClientUiState
+import com.exemplio.geapfitmobile.view.screens.client.ClientUiState
 import com.geapfit.utils.translate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,12 +21,12 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class ClientViewModel @Inject constructor(private val apiService: ApiServicesImpl) : ViewModel() {
+class ContactsViewModel @Inject constructor(private val apiService: ApiServicesImpl) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ClientUiState())
     val uiState: StateFlow<ClientUiState> = _uiState
-    private val _clients = MutableStateFlow<List<Client>>(emptyList())
-    val clients: StateFlow<List<Client>> = _clients
+    private val _contacts = MutableStateFlow<List<Client>>(emptyList())
+    val contacts: StateFlow<List<Client>> = _contacts
 
     fun getClients() {
         loadingState(true)
@@ -42,7 +42,7 @@ class ClientViewModel @Inject constructor(private val apiService: ApiServicesImp
                         if (response.success) {
                             viewModelScope.launch {
                                 val clientFieldsList = response?.obj?.data?.map { it } ?: emptyList()
-                                _clients.value = clientFieldsList
+                                _contacts.value = clientFieldsList
                             }
                             _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }
                         } else {

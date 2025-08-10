@@ -34,18 +34,18 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(onCloseSession: () -> Unit) {
+fun TopBar(title : String, onCloseSession: () -> Unit, goBack: () -> Unit) {
     TopAppBar(
         title = {
             Text(
-                "Chats",
+                title,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp
             )
         },
         navigationIcon = {
             Row {
-                IconButton(onClick = { /* Handle back */ }) {
+                IconButton(onClick = { goBack() }) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
                 }
                 Box(
@@ -60,9 +60,6 @@ fun TopBar(onCloseSession: () -> Unit) {
             }
         },
         actions = {
-            IconButton(onClick = { /* Ayuda */ }) {
-                Icon(Icons.Default.Person, contentDescription = "Ayuda")
-            }
             IconButton(onClick = { onCloseSession() }) {
                 Icon(Icons.Default.ExitToApp, contentDescription = "Exit")
             }
@@ -98,9 +95,6 @@ fun HeaderSection(title : String, onCloseSession: () -> Unit) {
             )
         },
         actions = {
-            IconButton(onClick = { /* Ayuda */ }) {
-                Icon(Icons.Default.Person, contentDescription = "Ayuda")
-            }
             IconButton(onClick = { onCloseSession() }) {
                 Icon(Icons.Default.ExitToApp, contentDescription = "Exit")
             }

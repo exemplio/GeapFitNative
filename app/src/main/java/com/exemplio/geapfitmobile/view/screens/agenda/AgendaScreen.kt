@@ -38,7 +38,7 @@ val sampleEvents = listOf(
 )
 
 @Composable
-fun AgendaScreen(principalNavHost: NavHostController ,agendaViewModel: AgendaViewModel = hiltViewModel()) {
+fun AgendaScreen(agendaViewModel: AgendaViewModel = hiltViewModel()) {
     var currentMonth by remember { mutableStateOf(YearMonth.of(2025, 3)) }
     var selectedDay by remember { mutableStateOf<LocalDate?>(null) }
 
@@ -118,7 +118,7 @@ fun AgendaScreen(principalNavHost: NavHostController ,agendaViewModel: AgendaVie
                     onLogout = {
                         showModalSession.value = false;
                         agendaViewModel.closeSession()
-                        principalNavHost.navigate(Login) {
+                        GlobalNav.root?.navigate(Login) {
                             popUpTo(Login) { inclusive = true }
                         }
                     }

@@ -13,17 +13,17 @@ sealed class BottomNavigation(
 ) {
 
     companion object {
-        val tabBottomItemsList = listOf(TabHome, TabAgenda, TabBusiness, TabLibrary, TabProfile)
+        val tabBottomItemsList = listOf(TabHome, TabAgenda, TabBusiness, TabLibrary, TabChats)
     }
 
     data object TabHome : BottomNavigation(
         label = R.string.tab_clients, icon = R.drawable.ic_people, tabScreens = TabScreens.TabHome
     )
 
-    data object TabProfile : BottomNavigation(
+    data object TabChats : BottomNavigation(
         label = R.string.tab_chat,
         icon = R.drawable.ic_chats,
-        tabScreens = TabScreens.TabProfile
+        tabScreens = TabScreens.TabChats
     )
 
     data object TabLibrary : BottomNavigation(

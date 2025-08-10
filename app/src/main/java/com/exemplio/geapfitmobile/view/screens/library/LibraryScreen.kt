@@ -32,7 +32,6 @@ import com.exemplio.geapfitmobile.view.home.screens.library.LibraryViewModel
 
 @Composable
 fun LibraryScreen(
-    principalNavHost: NavHostController,
     libraryViewModel: LibraryViewModel = hiltViewModel()
 ) {
 
@@ -114,7 +113,7 @@ fun LibraryScreen(
                 onLogout = {
                     showModalSession.value = false;
                     libraryViewModel.closeSession()
-                    principalNavHost.navigate(Login) {
+                    GlobalNav.root?.navigate(Login) {
                         popUpTo(Login) { inclusive = true }
                     }
                 }

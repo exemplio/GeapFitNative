@@ -20,8 +20,11 @@ sealed class TabScreens(val route: String){
     data object TabLibrary: TabScreens("tab_home?query={query}")
 
     @Serializable
-    data object TabProfile: TabScreens("tab_home?query={query}")
+    data object TabChats: TabScreens("tab_home?query={query}")
 
     @Serializable
     data object TabSingleChat: TabScreens("tab_home?query={query}")
+
+    @Serializable
+    data object TabContacts: TabScreens("tab_home?query={query}")
 }

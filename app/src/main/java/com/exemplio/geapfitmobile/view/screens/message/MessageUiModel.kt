@@ -1,6 +1,6 @@
-package com.exemplio.geapfitmobile.view.screens.singleChat
+package com.exemplio.geapfitmobile.view.screens.message
 
-data class SingleChatUiModel(
+data class MessageUiModel(
     val messages: List<Message>,
     val addressee: Author,
 ) {

@@ -1,5 +1,6 @@
-package com.exemplio.geapfitmobile.view.screens.singleChat
+package com.exemplio.geapfitmobile.view.screens.message
 
+import GlobalNav
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,46 +35,50 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.exemplio.geapfitmobile.ui.theme.PurpleGrey80
-import com.exemplio.geapfitmobile.view.core.components.HeaderSection
 import com.exemplio.geapfitmobile.view.core.components.TopBar
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
-fun SingleChatScreen(
+fun MessageScreen(
+    messageViewModel: MessageViewModel = hiltViewModel()
 ) {
-//    val uiState by chatsViewModel.uiState.collectAsStateWithLifecycle()
-//    val mockClients by chatsViewModel.chats.collectAsState()
+    val uiState by messageViewModel.uiState.collectAsStateWithLifecycle()
+    val mockClients by messageViewModel.message.collectAsState()
 
     val showModalErr = remember { mutableStateOf(false) }
     val showModalSession = remember { mutableStateOf(false) }
     val modalMessage = remember { mutableStateOf("") }
 
-//    LaunchedEffect(uiState.initialState) {
-//        if (uiState.initialState) {
-//            chatsViewModel.getClients()
-//        }
-//    }
+    LaunchedEffect(uiState.initialState) {
+        if (uiState.initialState) {
+            messageViewModel.getMessages()
+        }
+    }
 
     Scaffold(
         topBar = {
-            TopBar(onCloseSession = {
+            TopBar("Messages", onCloseSession = {
                 showModalSession.value = true
+            }, goBack = {
+                GlobalNav.navigateUpRoot()
             })
         },
     ){ padding ->
         ConstraintLayout(Modifier.fillMaxSize().padding(padding)) {
             val (messages, chatBox) = createRefs()
             val model = remember {
-                SingleChatUiModel(
+                MessageUiModel(
                     messages = listOf(
-                        SingleChatUiModel.Message.initConv,
-                        SingleChatUiModel.Message(
+                        MessageUiModel.Message.initConv,
+                        MessageUiModel.Message(
                             text = "Hello, how can I help you?",
-                            author = SingleChatUiModel.Author.bot
+                            author = MessageUiModel.Author.bot
                         )
                     ),
-                    addressee = SingleChatUiModel.Author.me
+                    addressee = MessageUiModel.Author.me
                 )
             }
             val listState = rememberLazyListState()
@@ -94,11 +99,11 @@ fun SingleChatScreen(
                 contentPadding = PaddingValues(16.dp)
             ) {
                 items(model.messages) { item ->
-                    ChatItem(item)
+                    MessageItem(item)
                 }
             }
-            ChatBox(
-                onSendChatClickListener(),
+            MessageBox(
+                onSendMessageClickListener(messageViewModel),
                 modifier = Modifier
                     .fillMaxWidth()
                     .constrainAs(chatBox) {
@@ -112,7 +117,7 @@ fun SingleChatScreen(
 }
 
 @Composable
-fun ChatItem(message: SingleChatUiModel.Message) {
+fun MessageItem(message: MessageUiModel.Message) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(4.dp)) {
@@ -136,8 +141,8 @@ fun ChatItem(message: SingleChatUiModel.Message) {
 }
 
 @Composable
-fun ChatBox(
-    onSendChatClickListener: (String) -> Unit,
+fun MessageBox(
+    onSendMessageClickListener: (String) -> Unit,
     modifier: Modifier
 ) {
     var chatBoxValue by remember { mutableStateOf(TextFieldValue("")) }
@@ -164,7 +169,7 @@ fun ChatBox(
             onClick = {
                 val msg = chatBoxValue.text
                 if (msg.isBlank()) return@IconButton
-                onSendChatClickListener(chatBoxValue.text)
+                onSendMessageClickListener(chatBoxValue.text)
                 chatBoxValue = TextFieldValue("")
             },
             modifier = Modifier
@@ -181,9 +186,9 @@ fun ChatBox(
     }
 }
 
-fun onSendChatClickListener(): (String) -> Unit {
+fun onSendMessageClickListener(messageViewModel: MessageViewModel): (String) -> Unit {
     return { message: String ->
-        // Your logic here, e.g. print or send the message
+        messageViewModel.sendSMS()
         println("Send chat: $message")
     }
 }

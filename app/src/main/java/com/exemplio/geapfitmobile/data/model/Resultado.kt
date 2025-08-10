@@ -8,7 +8,6 @@ data class Resultado<T>(
     val error: Any? = null,
     val stackTrace: Throwable? = null,
     val errorMessage: String? = null,
-    val msg: Message? = null,
     val errorResponse: ErrorResponse? = null
 ) {
 
@@ -42,37 +41,12 @@ data class Resultado<T>(
                 obj = obj
             )
 
-        fun <T> msg(msg: Message, errorMessage: String? = null, success: Boolean = false): Resultado<T> =
-            Resultado(
-                success = success,
-                errorMessage = errorMessage,
-                msg = msg
-            )
-
-        fun <T> result(result: Resultado<*>): Resultado<T> =
-            Resultado(
-                success = result.success,
-                error = result.error,
-                stackTrace = result.stackTrace,
-                errorMessage = result.errorMessage,
-                msg = result.msg
-            )
-
-        fun <S, T> transform(result: Resultado<T>): Resultado<S> =
-            Resultado(
-                success = result.success,
-                error = result.error,
-                stackTrace = result.stackTrace,
-                errorMessage = result.errorMessage,
-                msg = result.msg
-            )
-
         fun <T> identity(resultado: Resultado<T>): Resultado<T> = resultado
     }
 
     val length: Nothing? = null
 
     override fun toString(): String {
-        return "Resultado(success=$success, obj=$obj, error=$error, stackTrace=$stackTrace, errorMessage=$errorMessage, msg=$msg, errorResponse=$errorResponse)"
+        return "Resultado(success=$success, obj=$obj, error=$error, stackTrace=$stackTrace, errorMessage=$errorMessage, errorResponse=$errorResponse)"
     }
 }
