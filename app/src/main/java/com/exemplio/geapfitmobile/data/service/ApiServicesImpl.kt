@@ -4,6 +4,8 @@ import Client
 import ClientsResponse
 import ErrorResponse
 import HttpUtil
+import Message
+import MessageModel
 import android.util.Log
 import com.exemplio.geapfitmobile.utils.CacheService
 import com.exemplio.geapfitmobile.domain.entity.PasswordGrantEntity
@@ -14,6 +16,7 @@ import com.geapfit.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -205,7 +208,7 @@ class ApiServicesImpl(
         )
     }
 
-    suspend fun getMessages(): Resultado<ClientsResponse?> {
+    suspend fun getMessages(queryParameters: Map<String, String?>?): Resultado<List<MessageModel>?> {
         val path = StaticNamesPath.getMessages.path
         val uri = url(
             path,
@@ -214,20 +217,27 @@ class ApiServicesImpl(
         val headers = mapOf("Content-Type" to "application/json")
         val httpUrl = uri.getOrNull()
             ?: throw uri.exceptionOrNull() ?: Exception("Invalid URL")
+
+        val finalUrl = httpUrl.newBuilder().apply {
+            queryParameters?.forEach { (key, value) ->
+                if (!value.isNullOrEmpty()) addQueryParameter(key, value)
+            }
+        }.build()
+        println("Este es el finalUrl: $finalUrl")
         return httpCall(
             f = { client ->
                 val req = Request.Builder()
-                    .url(httpUrl)
+                    .url(finalUrl)
                     .get()
                     .headers(headers.toHeaders())
                     .build()
                 client.newCall(req).execute()
             },
-            serializer = ClientsResponse.serializer()
+            serializer = ListSerializer(MessageModel.serializer())
         )
     }
 
-    suspend fun sendMessage(request: PasswordGrantEntity): Resultado<VerifyPasswordResponse?> {
+    suspend fun sendMessage(request: Message): Resultado<VerifyPasswordResponse?> {
         val path = StaticNamesPath.getMessages.path
         val uri = url(
             path,

@@ -1,6 +1,7 @@
 package com.exemplio.geapfitmobile.view.screens.message
 
 import GlobalNav
+import MessageModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +47,7 @@ fun MessageScreen(
     messageViewModel: MessageViewModel = hiltViewModel()
 ) {
     val uiState by messageViewModel.uiState.collectAsStateWithLifecycle()
-    val mockClients by messageViewModel.message.collectAsState()
+    val mockSMS by messageViewModel.message.collectAsState()
 
     val showModalErr = remember { mutableStateOf(false) }
     val showModalSession = remember { mutableStateOf(false) }
@@ -69,21 +70,9 @@ fun MessageScreen(
     ){ padding ->
         ConstraintLayout(Modifier.fillMaxSize().padding(padding)) {
             val (messages, chatBox) = createRefs()
-            val model = remember {
-                MessageUiModel(
-                    messages = listOf(
-                        MessageUiModel.Message.initConv,
-                        MessageUiModel.Message(
-                            text = "Hello, how can I help you?",
-                            author = MessageUiModel.Author.bot
-                        )
-                    ),
-                    addressee = MessageUiModel.Author.me
-                )
-            }
             val listState = rememberLazyListState()
-            LaunchedEffect(model.messages.size) {
-                listState.animateScrollToItem(model.messages.size)
+            LaunchedEffect(mockSMS.size) {
+                listState.animateScrollToItem(mockSMS.size)
             }
             LazyColumn(
                 state = listState,
@@ -98,7 +87,7 @@ fun MessageScreen(
                     },
                 contentPadding = PaddingValues(16.dp)
             ) {
-                items(model.messages) { item ->
+                items(mockSMS) { item ->
                     MessageItem(item)
                 }
             }
@@ -117,25 +106,27 @@ fun MessageScreen(
 }
 
 @Composable
-fun MessageItem(message: MessageUiModel.Message) {
+fun MessageItem(message: MessageModel) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(4.dp)) {
         Box(
             modifier = Modifier
-                .align(if (message.isFromMe) Alignment.End else Alignment.Start)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 48f,
-                        topEnd = 48f,
-                        bottomStart = if (message.isFromMe) 48f else 0f,
-                        bottomEnd = if (message.isFromMe) 0f else 48f
-                    )
-                )
+//                .align(if (message.isFromMe) Alignment.End else Alignment.Start)
+                .align(Alignment.End)
+//                .clip(
+//                    RoundedCornerShape(
+//                        topStart = 48f,
+//                        topEnd = 48f,
+//                        bottomStart = if (message.isFromMe) 48f else 0f,
+//                        bottomEnd = if (message.isFromMe) 0f else 48f
+//                    )
+//                )
                 .background(PurpleGrey80)
                 .padding(16.dp)
         ) {
-            Text(text = message.text)
+            print("Message content: ${message.content}")
+            Text(text = message.content)
         }
     }
 }
