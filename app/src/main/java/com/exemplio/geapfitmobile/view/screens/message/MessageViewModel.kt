@@ -8,6 +8,8 @@ import MessageModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.app.ws.ConnectionState
+import com.example.app.ws.WebSocketManager
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
 import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
 import com.exemplio.geapfitmobile.view.screens.client.ClientUiState
@@ -17,17 +19,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class MessageViewModel @Inject constructor(private val apiService: ApiServicesImpl) : ViewModel() {
+class MessageViewModel @Inject constructor(
+    private val apiService: ApiServicesImpl,
+    private val ws: WebSocketManager = WebSocketManager()
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ClientUiState())
-    val uiState: StateFlow<ClientUiState> = _uiState
+//    val uiState: StateFlow<ClientUiState> = _uiState
     private val _message = MutableStateFlow<List<MessageModel>>(emptyList())
     val message: StateFlow<List<MessageModel>> = _message
 
@@ -68,44 +76,82 @@ class MessageViewModel @Inject constructor(private val apiService: ApiServicesIm
         }
     }
 
-    fun sendSMS() {
-        loadingState(true)
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = apiService.sendMessage(
-                Message(
-                    content = "Hello, how can I help you?",
-                    type = "text",
-                    username = "user123",
-                    receiver = "receiver123",
-                    sender = "sender123",
-                    chat = "chat123"
-                )
+    val uiState: StateFlow<ChatUiState> =
+        combine(ws.state, ws.lastError, _message) { state, err, msgs ->
+            ChatUiState(
+                disconnected = state == ConnectionState.Disconnected,
+                connected = state == ConnectionState.Connected,
+                connecting = state == ConnectionState.Connecting,
+                messages = listOf("a", "b", "c"),
+                lastError = err?.message
             )
-            Log.d("MessageViewModel", "Response: $response")
-            val respuesta : VerifyPasswordResponse? = response.obj
-            withContext(Dispatchers.Main) {
-                GlobalScope.launch {
-                    delay(500)
-                    Log.d("MessageViewModel", "Respuesta: $respuesta")
-                    if (respuesta != null) {
-                        if (response.success) {
-                            viewModelScope.launch {
-                                val clientFieldsList = response?.obj
-//                                _message.value = clientFieldsList
-                            }
-                            _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }
-                        } else {
-                            Log.e("MessageViewModel", "Client failed: ${response.errorMessage}")
-                            _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
-                        }
-                    } else {
-                        _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
-                    }
-                    loadingState(false)
-                }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, ChatUiState())
+
+    init {
+        // Collect incoming messages and append to list
+        viewModelScope.launch {
+            ws.incoming.collect { msg ->
+//                _message.value = _message.value + msg
+//                _message.value = _message.value + msg
             }
         }
     }
+
+    fun connect(url: String) {
+        ws.connect(url)
+    }
+
+    fun send(text: String) {
+        if (text.isNotBlank()) ws.send(text)
+    }
+
+    fun disconnect() {
+        ws.close()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        ws.close()
+    }
+
+//    fun sendSMS() {
+//        loadingState(true)
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val response = apiService.sendMessage(
+//                Message(
+//                    content = "Hello, how can I help you?",
+//                    type = "text",
+//                    username = "user123",
+//                    receiver = "receiver123",
+//                    sender = "sender123",
+//                    chat = "chat123"
+//                )
+//            )
+//            Log.d("MessageViewModel", "Response: $response")
+//            val respuesta : VerifyPasswordResponse? = response.obj
+//            withContext(Dispatchers.Main) {
+//                GlobalScope.launch {
+//                    delay(500)
+//                    Log.d("MessageViewModel", "Respuesta: $respuesta")
+//                    if (respuesta != null) {
+//                        if (response.success) {
+//                            viewModelScope.launch {
+//                                val clientFieldsList = response?.obj
+////                                _message.value = clientFieldsList
+//                            }
+//                            _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }
+//                        } else {
+//                            Log.e("MessageViewModel", "Client failed: ${response.errorMessage}")
+//                            _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
+//                        }
+//                    } else {
+//                        _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
+//                    }
+//                    loadingState(false)
+//                }
+//            }
+//        }
+//    }
 
     private fun loadingState(isLoading: Boolean){
         _uiState.update { it.copy(isLoading = isLoading) }

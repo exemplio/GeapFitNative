@@ -1,6 +1,7 @@
 package com.exemplio.geapfitmobile.view.screens.message
 
 import GlobalNav
+import Message
 import MessageModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,13 +39,15 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.app.ws.WebSocketManager
 import com.exemplio.geapfitmobile.ui.theme.PurpleGrey80
 import com.exemplio.geapfitmobile.view.core.components.TopBar
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.serialization.json.Json
 
 @Composable
 fun MessageScreen(
-    messageViewModel: MessageViewModel = hiltViewModel()
+    messageViewModel: MessageViewModel = hiltViewModel(),
 ) {
     val uiState by messageViewModel.uiState.collectAsStateWithLifecycle()
     val mockSMS by messageViewModel.message.collectAsState()
@@ -53,10 +56,12 @@ fun MessageScreen(
     val showModalSession = remember { mutableStateOf(false) }
     val modalMessage = remember { mutableStateOf("") }
 
-    LaunchedEffect(uiState.initialState) {
-        if (uiState.initialState) {
-            messageViewModel.getMessages()
-        }
+    var url by remember { mutableStateOf("wss://express-mongo-cobq.onrender.com/ws") }
+
+    LaunchedEffect(uiState.disconnected) {
+//        if (uiState.disconnected) {
+            messageViewModel.connect(url)
+//        }
     }
 
     Scaffold(
@@ -68,7 +73,10 @@ fun MessageScreen(
             })
         },
     ){ padding ->
-        ConstraintLayout(Modifier.fillMaxSize().padding(padding)) {
+        ConstraintLayout(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)) {
             val (messages, chatBox) = createRefs()
             val listState = rememberLazyListState()
             LaunchedEffect(mockSMS.size) {
@@ -171,7 +179,9 @@ fun MessageBox(
             Icon(
                 imageVector = Icons.Filled.Send,
                 contentDescription = "Send",
-                modifier = Modifier.fillMaxSize().padding(8.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
             )
         }
     }
@@ -179,7 +189,9 @@ fun MessageBox(
 
 fun onSendMessageClickListener(messageViewModel: MessageViewModel): (String) -> Unit {
     return { message: String ->
-        messageViewModel.sendSMS()
-        println("Send chat: $message")
+        val msg = Message(type = "message", content = "Hello", username = "exemplio", receiver = "689818117bd6a653310456a1", sender = "689818117bd6a653310456a1", chat = "689818117bd6a653310456a0")
+        val json = Json.encodeToString(Message.serializer(), msg)
+        messageViewModel.send(json)
+        println("Send chat: $json")
     }
 }

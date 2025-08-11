@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 import android.content.Context
+import com.example.app.ws.WebSocketManager
 import com.exemplio.geapfitmobile.utils.CacheService
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -34,6 +35,11 @@ object DataModule {
     @Provides
     fun provideApiService(client: OkHttpClient, context: Context): ApiServicesImpl {
         return ApiServicesImpl( HttpServiceImpl(client), IsOnlineProvider(context), CacheService(context))
+    }
+
+    @Provides
+    fun provideWebSocket(client: OkHttpClient): WebSocketManager {
+        return WebSocketManager(client)
     }
 }
 
