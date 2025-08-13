@@ -20,8 +20,9 @@ class WebSocketManager(
 
     val state = MutableStateFlow(ConnectionState.Disconnected)
     val lastError = MutableStateFlow<Throwable?>(null)
+    private val url = "wss://express-mongo-cobq.onrender.com/ws"
 
-    fun connect(url: String, headers: Map<String, String> = emptyMap()) {
+    fun connect(headers: Map<String, String> = emptyMap()) {
         println("Connecting to WebSocket at $url")
         if (state.value == ConnectionState.Connected || state.value == ConnectionState.Connecting) return
         print("Connecting to WebSocket at $url with headers: $headers")
@@ -37,7 +38,8 @@ class WebSocketManager(
             override fun onOpen(ws: WebSocket, response: Response) {
                 println("WebSocket connected: $response")
                 val deviceId = "android-123"
-                val helloJson = """{"type":"hello","id":"$deviceId"}"""
+                val type = "sender"
+                val helloJson = """{"type":"hello","id":"$deviceId","type":"$type"}"""
                 webSocket?.send(helloJson)
                 state.value = ConnectionState.Connected
             }

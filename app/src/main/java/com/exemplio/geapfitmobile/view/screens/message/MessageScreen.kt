@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.app.ws.WebSocketManager
 import com.exemplio.geapfitmobile.ui.theme.PurpleGrey80
@@ -49,8 +53,10 @@ import kotlinx.serialization.json.Json
 fun MessageScreen(
     messageViewModel: MessageViewModel = hiltViewModel(),
 ) {
-    val uiState by messageViewModel.uiState.collectAsStateWithLifecycle()
-    val mockSMS by messageViewModel.message.collectAsState()
+//    val uiState by messageViewModel.uiState.collectAsStateWithLifecycle()
+//    val mockSMS by messageViewModel.message.collectAsState()
+    val mockSMS by messageViewModel.latestMessage.collectAsState()
+
 
     val showModalErr = remember { mutableStateOf(false) }
     val showModalSession = remember { mutableStateOf(false) }
@@ -58,10 +64,25 @@ fun MessageScreen(
 
     var url by remember { mutableStateOf("wss://express-mongo-cobq.onrender.com/ws") }
 
-    LaunchedEffect(uiState.disconnected) {
-//        if (uiState.disconnected) {
-            messageViewModel.connect(url)
-//        }
+//    LaunchedEffect(uiState.disconnected) {
+////        if (uiState.disconnected) {
+//            messageViewModel.connect(url)
+////        }
+//    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> messageViewModel.connect()
+                Lifecycle.Event.ON_STOP -> {/* Optionally disconnect */}
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     Scaffold(
@@ -114,14 +135,14 @@ fun MessageScreen(
 }
 
 @Composable
-fun MessageItem(message: MessageModel) {
+fun MessageItem(message: String) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(4.dp)) {
         Box(
             modifier = Modifier
 //                .align(if (message.isFromMe) Alignment.End else Alignment.Start)
-                .align(Alignment.End)
+                .align(Alignment.Start)
 //                .clip(
 //                    RoundedCornerShape(
 //                        topStart = 48f,
@@ -133,8 +154,8 @@ fun MessageItem(message: MessageModel) {
                 .background(PurpleGrey80)
                 .padding(16.dp)
         ) {
-            print("Message content: ${message.content}")
-            Text(text = message.content)
+//            print("Message content: ${message.content}")
+            Text(text = message)
         }
     }
 }

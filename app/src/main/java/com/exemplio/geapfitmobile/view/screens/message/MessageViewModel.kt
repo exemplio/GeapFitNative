@@ -39,6 +39,17 @@ class MessageViewModel @Inject constructor(
     private val _message = MutableStateFlow<List<MessageModel>>(emptyList())
     val message: StateFlow<List<MessageModel>> = _message
 
+    private val _latestMessage = MutableStateFlow<List<String>>(emptyList())
+    val latestMessage: StateFlow<List<String>> = _latestMessage
+
+    init {
+        viewModelScope.launch {
+            ws.incoming.collect { message ->
+                _latestMessage.value += listOf(message)
+            }
+        }
+    }
+
     fun getMessages() {
         loadingState(true)
         viewModelScope.launch(Dispatchers.IO) {
@@ -87,18 +98,8 @@ class MessageViewModel @Inject constructor(
             )
         }.stateIn(viewModelScope, SharingStarted.Eagerly, ChatUiState())
 
-    init {
-        // Collect incoming messages and append to list
-        viewModelScope.launch {
-            ws.incoming.collect { msg ->
-//                _message.value = _message.value + msg
-//                _message.value = _message.value + msg
-            }
-        }
-    }
-
-    fun connect(url: String) {
-        ws.connect(url)
+    fun connect() {
+        ws.connect()
     }
 
     fun send(text: String) {
