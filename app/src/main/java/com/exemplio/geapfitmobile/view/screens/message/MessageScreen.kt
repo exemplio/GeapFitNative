@@ -2,7 +2,7 @@ package com.exemplio.geapfitmobile.view.screens.message
 
 import GlobalNav
 import Message
-import MessageModel
+import MessageReceive
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -101,6 +101,7 @@ fun MessageScreen(
             val (messages, chatBox) = createRefs()
             val listState = rememberLazyListState()
             LaunchedEffect(mockSMS.size) {
+                println("Esto son los mensajes $mockSMS")
                 listState.animateScrollToItem(mockSMS.size)
             }
             LazyColumn(
@@ -135,7 +136,7 @@ fun MessageScreen(
 }
 
 @Composable
-fun MessageItem(message: String) {
+fun MessageItem(message: MessageReceive) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(4.dp)) {
@@ -155,7 +156,7 @@ fun MessageItem(message: String) {
                 .padding(16.dp)
         ) {
 //            print("Message content: ${message.content}")
-            Text(text = message)
+            Text(text = message.content ?: "")
         }
     }
 }
@@ -209,7 +210,7 @@ fun MessageBox(
 }
 
 fun onSendMessageClickListener(messageViewModel: MessageViewModel): (String) -> Unit {
-    return { message: String ->
+    return {
         val msg = Message(type = "message", content = "Hello", username = "exemplio", receiver = "689818117bd6a653310456a1", sender = "689818117bd6a653310456a1", chat = "689818117bd6a653310456a0")
         val json = Json.encodeToString(Message.serializer(), msg)
         messageViewModel.send(json)

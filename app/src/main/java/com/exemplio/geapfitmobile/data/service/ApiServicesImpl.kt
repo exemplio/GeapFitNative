@@ -5,7 +5,7 @@ import ClientsResponse
 import ErrorResponse
 import HttpUtil
 import Message
-import MessageModel
+import MessageReceive
 import android.util.Log
 import com.exemplio.geapfitmobile.utils.CacheService
 import com.exemplio.geapfitmobile.domain.entity.PasswordGrantEntity
@@ -208,7 +208,7 @@ class ApiServicesImpl(
         )
     }
 
-    suspend fun getMessages(queryParameters: Map<String, String?>?): Resultado<List<MessageModel>?> {
+    suspend fun getMessages(queryParameters: Map<String, String?>?): Resultado<List<MessageReceive>?> {
         val path = StaticNamesPath.getMessages.path
         val uri = url(
             path,
@@ -233,7 +233,7 @@ class ApiServicesImpl(
                     .build()
                 client.newCall(req).execute()
             },
-            serializer = ListSerializer(MessageModel.serializer())
+            serializer = ListSerializer(MessageReceive.serializer())
         )
     }
 

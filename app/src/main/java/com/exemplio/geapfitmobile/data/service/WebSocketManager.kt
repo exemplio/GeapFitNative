@@ -1,9 +1,12 @@
 package com.example.app.ws
 
+import com.exemplio.geapfitmobile.data.model.Resultado
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
 import okhttp3.*
 
 enum class ConnectionState { Disconnected, Connecting, Connected, Closing, Closed, Failed }
@@ -22,6 +25,15 @@ class WebSocketManager(
     val lastError = MutableStateFlow<Throwable?>(null)
     private val url = "wss://express-mongo-cobq.onrender.com/ws"
 
+    fun <T> decodeMessage(json: String, serializer: KSerializer<T>): Resultado<T?> {
+        return try {
+            println("WebsocketManager.decodeMessage: ${Json.decodeFromString(serializer, json)}")
+            Resultado.success(obj=Json.decodeFromString(serializer, json))
+        } catch (e: Exception) {
+            Resultado.failMsg("Ocurrió un error inesperado $e", error = 0)
+        }
+    }
+
     fun connect(headers: Map<String, String> = emptyMap()) {
         println("Connecting to WebSocket at $url")
         if (state.value == ConnectionState.Connected || state.value == ConnectionState.Connecting) return
@@ -37,9 +49,10 @@ class WebSocketManager(
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(ws: WebSocket, response: Response) {
                 println("WebSocket connected: $response")
-                val deviceId = "android-123"
-                val type = "sender"
-                val helloJson = """{"type":"hello","id":"$deviceId","type":"$type"}"""
+//                val deviceId = "android-123"
+//                val type = "receive"
+
+                val helloJson = """{"type":"receive","chat":"689818117bd6a653310456a0"}"""
                 webSocket?.send(helloJson)
                 state.value = ConnectionState.Connected
             }

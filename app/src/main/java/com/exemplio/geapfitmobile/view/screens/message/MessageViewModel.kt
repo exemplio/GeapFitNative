@@ -4,7 +4,7 @@ package com.exemplio.geapfitmobile.view.screens.message
 import Client
 import ClientsResponse
 import Message
-import MessageModel
+import MessageReceive
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,16 +38,19 @@ class MessageViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ClientUiState())
 //    val uiState: StateFlow<ClientUiState> = _uiState
-    private val _message = MutableStateFlow<List<MessageModel>>(emptyList())
-    val message: StateFlow<List<MessageModel>> = _message
+    private val _message = MutableStateFlow<List<MessageReceive>>(emptyList())
+    val message: StateFlow<List<MessageReceive>> = _message
 
-    private val _latestMessage = MutableStateFlow<List<String>>(emptyList())
-    val latestMessage: StateFlow<List<String>> = _latestMessage
+    private val _latestMessage = MutableStateFlow<List<MessageReceive>>(emptyList())
+    val latestMessage: StateFlow<List<MessageReceive>> = _latestMessage
 
     init {
         viewModelScope.launch {
             ws.incoming.collect { message ->
-                _latestMessage.value += listOf(message)
+                println("Received message: $message")
+                println("Received message2: ${ws.decodeMessage(message,ListSerializer(MessageReceive.serializer())).obj}")
+                println("Received message3: ${ws.decodeMessage(message,ListSerializer(MessageReceive.serializer()))}")
+                _latestMessage.value = ws.decodeMessage(message,ListSerializer(MessageReceive.serializer())).obj ?: emptyList()
             }
         }
     }
@@ -59,7 +64,7 @@ class MessageViewModel @Inject constructor(
                 )
             )
             Log.d("MessageViewModel", "Response: $response")
-            val respuesta : List<MessageModel>? = response.obj
+            val respuesta : List<MessageReceive>? = response.obj
             withContext(Dispatchers.Main) {
                 GlobalScope.launch {
                     delay(500)
