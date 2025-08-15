@@ -42,11 +42,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.app.ws.WebSocketManager
 import com.exemplio.geapfitmobile.ui.theme.PurpleGrey80
 import com.exemplio.geapfitmobile.view.core.components.TopBar
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.serialization.json.Json
 
 @Composable
@@ -211,7 +208,7 @@ fun MessageBox(
 
 fun onSendMessageClickListener(messageViewModel: MessageViewModel): (String) -> Unit {
     return {
-        val msg = Message(type = "message", content = "Hello", username = "exemplio", receiver = "689818117bd6a653310456a1", sender = "689818117bd6a653310456a1", chat = "689818117bd6a653310456a0")
+        val msg = Message(type = "send", content = "Hello", username = "exemplio", receiver = "689818117bd6a653310456a1", sender = "689818117bd6a653310456a1", chat = "689818117bd6a653310456a0")
         val json = Json.encodeToString(Message.serializer(), msg)
         messageViewModel.send(json)
         println("Send chat: $json")

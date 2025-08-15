@@ -9,7 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 import android.content.Context
-import com.example.app.ws.WebSocketManager
+import com.exemplio.geapfitmobile.data.service.WebSocketManager
 import com.exemplio.geapfitmobile.utils.CacheService
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
 import dagger.hilt.android.qualifiers.ApplicationContext

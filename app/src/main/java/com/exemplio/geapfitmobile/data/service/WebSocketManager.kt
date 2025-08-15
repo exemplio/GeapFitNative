@@ -1,4 +1,4 @@
-package com.example.app.ws
+package com.exemplio.geapfitmobile.data.service
 
 import com.exemplio.geapfitmobile.data.model.Resultado
 import kotlinx.coroutines.channels.BufferOverflow

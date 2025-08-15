@@ -1,17 +1,13 @@
 package com.exemplio.geapfitmobile.view.screens.message
 
 
-import Client
-import ClientsResponse
-import Message
 import MessageReceive
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.app.ws.ConnectionState
-import com.example.app.ws.WebSocketManager
+import com.exemplio.geapfitmobile.data.service.ConnectionState
+import com.exemplio.geapfitmobile.data.service.WebSocketManager
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
-import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
 import com.exemplio.geapfitmobile.view.screens.client.ClientUiState
 import com.geapfit.utils.translate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +23,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,7 +43,6 @@ class MessageViewModel @Inject constructor(
         viewModelScope.launch {
             ws.incoming.collect { message ->
                 println("Received message: $message")
-                println("Received message2: ${ws.decodeMessage(message,ListSerializer(MessageReceive.serializer())).obj}")
                 println("Received message3: ${ws.decodeMessage(message,ListSerializer(MessageReceive.serializer()))}")
                 _latestMessage.value = ws.decodeMessage(message,ListSerializer(MessageReceive.serializer())).obj ?: emptyList()
             }

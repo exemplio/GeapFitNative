@@ -7,5 +7,6 @@ data class MessageReceive(
     val sender: String? = null,
     val content: String,
     val readBy: List<String> = emptyList(),
-    val createdAt: String
+    val createdAt: String,
+    val receiver: String? = null,
 )
