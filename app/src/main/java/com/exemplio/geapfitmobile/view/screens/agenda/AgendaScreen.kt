@@ -118,9 +118,6 @@ fun AgendaScreen(agendaViewModel: AgendaViewModel = hiltViewModel()) {
                     onLogout = {
                         showModalSession.value = false;
                         agendaViewModel.closeSession()
-                        GlobalNav.root?.navigate(Login) {
-                            popUpTo(Login) { inclusive = true }
-                        }
                     }
                 )
             }

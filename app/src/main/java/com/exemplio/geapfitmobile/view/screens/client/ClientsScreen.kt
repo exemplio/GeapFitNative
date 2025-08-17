@@ -105,9 +105,6 @@ fun ClientScreen(
                 onLogout = {
                     showModalSession.value = false;
                     clientViewModel.closeSession()
-                    GlobalNav.root?.navigate(Login) {
-                        popUpTo(Login) { inclusive = true }
-                    }
                 }
             )
         }
@@ -214,9 +211,9 @@ fun ClientListItem(client: Client) {
         }
         Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(client.displayName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            client.displayName?.let { Text(it, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
 //            Text(client.lastActivity.stringValue, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-            Text(client.createdAt, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            client.createdAt?.let { Text(it, fontWeight = FontWeight.Bold, fontSize = 13.sp) }
         }
         Text(
 //            client.status.stringValue,

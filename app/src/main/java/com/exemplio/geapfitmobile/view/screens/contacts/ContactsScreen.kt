@@ -101,9 +101,6 @@ fun ContactsScreen(
                 onLogout = {
                     showModalSession.value = false;
                     contactsViewModel.closeSession()
-                    GlobalNav.root?.navigate(Login) {
-                        popUpTo(Login) { inclusive = true }
-                    }
                 }
             )
         }
@@ -133,7 +130,7 @@ fun ContactsListItem(client: Client) {
             .background(MaterialTheme.colorScheme.background)
             .padding(12.dp)
             .clickable {
-                GlobalNav.root?.navigate(TabScreens.TabSingleChat) {
+                GlobalNav.root?.navigate("TabSingleChat/${client.userId}") {
                     popUpTo(Login) { inclusive = true }
                 }
             },
@@ -150,7 +147,7 @@ fun ContactsListItem(client: Client) {
         }
         Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(client.displayName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            client.displayName?.let { Text(it, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
         }
         Text(
             client.email,

@@ -1,7 +1,6 @@
 package com.exemplio.geapfitmobile.view.screens.message
 
 import GlobalNav
-import Message
 import MessageReceive
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -42,30 +41,41 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.exemplio.geapfitmobile.ui.theme.PurpleGrey80
 import com.exemplio.geapfitmobile.view.core.components.TopBar
-import kotlinx.serialization.json.Json
 
 @Composable
 fun MessageScreen(
+    thirdUserId: String? = null,
+    receiveChatId: String? = null,
     messageViewModel: MessageViewModel = hiltViewModel(),
 ) {
-//    val uiState by messageViewModel.uiState.collectAsStateWithLifecycle()
-//    val mockSMS by messageViewModel.message.collectAsState()
-    val mockSMS by messageViewModel.latestMessage.collectAsState()
-
-
+    val uiState by messageViewModel.uiState.collectAsStateWithLifecycle()
+    val mockSMS by messageViewModel.messages.collectAsState()
     val showModalErr = remember { mutableStateOf(false) }
     val showModalSession = remember { mutableStateOf(false) }
     val modalMessage = remember { mutableStateOf("") }
 
-    var url by remember { mutableStateOf("wss://express-mongo-cobq.onrender.com/ws") }
+    LaunchedEffect(uiState.connected) {
+        if (uiState.connected) {
+            messageViewModel.getMessages()
+        }
+    }
 
-//    LaunchedEffect(uiState.disconnected) {
-////        if (uiState.disconnected) {
-//            messageViewModel.connect(url)
-////        }
-//    }
+    LaunchedEffect(uiState.disconnected) {
+        if (uiState.disconnected) {
+            messageViewModel.connect()
+        }
+    }
+
+    LaunchedEffect(thirdUserId) {
+        messageViewModel.setUserId(thirdUserId)
+    }
+
+    LaunchedEffect(receiveChatId) {
+        messageViewModel.setReceiveChatId(receiveChatId)
+    }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -119,7 +129,7 @@ fun MessageScreen(
                 }
             }
             MessageBox(
-                onSendMessageClickListener(messageViewModel),
+                messageViewModel=messageViewModel,
                 modifier = Modifier
                     .fillMaxWidth()
                     .constrainAs(chatBox) {
@@ -133,7 +143,7 @@ fun MessageScreen(
 }
 
 @Composable
-fun MessageItem(message: MessageReceive) {
+fun MessageItem(message: MessageReceive?) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(4.dp)) {
@@ -153,15 +163,15 @@ fun MessageItem(message: MessageReceive) {
                 .padding(16.dp)
         ) {
 //            print("Message content: ${message.content}")
-            Text(text = message.content ?: "")
+            Text(text = message?.content ?: "")
         }
     }
 }
 
 @Composable
 fun MessageBox(
-    onSendMessageClickListener: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    messageViewModel: MessageViewModel
 ) {
     var chatBoxValue by remember { mutableStateOf(TextFieldValue("")) }
     Row(modifier = modifier.padding(16.dp)) {
@@ -187,7 +197,7 @@ fun MessageBox(
             onClick = {
                 val msg = chatBoxValue.text
                 if (msg.isBlank()) return@IconButton
-                onSendMessageClickListener(chatBoxValue.text)
+                onSendMessageClickListener(chatBoxValue.text,messageViewModel)
                 chatBoxValue = TextFieldValue("")
             },
             modifier = Modifier
@@ -206,11 +216,6 @@ fun MessageBox(
     }
 }
 
-fun onSendMessageClickListener(messageViewModel: MessageViewModel): (String) -> Unit {
-    return {
-        val msg = Message(type = "send", content = "Hello", username = "exemplio", receiver = "689818117bd6a653310456a1", sender = "689818117bd6a653310456a1", chat = "689818117bd6a653310456a0")
-        val json = Json.encodeToString(Message.serializer(), msg)
-        messageViewModel.send(json)
-        println("Send chat: $json")
-    }
+fun onSendMessageClickListener(content: String? = null, messageViewModel: MessageViewModel) {
+    messageViewModel.send(content)
 }

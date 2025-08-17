@@ -18,11 +18,9 @@ data class Pagination(
 
 @Serializable
 data class Client(
-    val username: String,
+    val userName: String,
     val userId: String,
-    val displayName: String,
+    val displayName: String ? = null,
     val email: String,
-    @SerialName("_id") val id: String,
-    val createdAt: String,
-    @SerialName("__v") val version: Int? = null
+    val createdAt: String ? = null,
 )

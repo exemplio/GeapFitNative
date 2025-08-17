@@ -4,9 +4,11 @@ import ContactsScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.exemplio.geapfitmobile.view.auth.login.LoginScreen
 import com.exemplio.geapfitmobile.view.auth.register.RegisterScreen
 import com.exemplio.geapfitmobile.view.core.navigation.TabScreens.TabSingleChat
@@ -39,8 +41,12 @@ fun NavigationWrapper() {
         composable<Home> {
             HomeScreen(principalNavHost)
         }
-        composable<TabSingleChat> {
-            MessageScreen()
+        composable(
+            route = "TabSingleChat/{thirdUserId}",
+            arguments = listOf(navArgument("thirdUserId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val thirdUserId = backStackEntry.arguments?.getString("thirdUserId")
+            MessageScreen(thirdUserId = thirdUserId)
         }
         composable<TabContacts> {
             ContactsScreen()

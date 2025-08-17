@@ -2,12 +2,14 @@ package com.exemplio.geapfitmobile.view.screens.message
 
 
 import MessageReceive
+import SendMessage
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.exemplio.geapfitmobile.data.service.ConnectionState
 import com.exemplio.geapfitmobile.data.service.WebSocketManager
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
+import com.exemplio.geapfitmobile.utils.CacheService
 import com.exemplio.geapfitmobile.view.screens.client.ClientUiState
 import com.geapfit.utils.translate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,29 +24,40 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
 class MessageViewModel @Inject constructor(
     private val apiService: ApiServicesImpl,
-    private val ws: WebSocketManager = WebSocketManager()
+    private val ws: WebSocketManager,
+    private val cache: CacheService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ClientUiState())
-//    val uiState: StateFlow<ClientUiState> = _uiState
-    private val _message = MutableStateFlow<List<MessageReceive>>(emptyList())
-    val message: StateFlow<List<MessageReceive>> = _message
+    private val _messages = MutableStateFlow<List<MessageReceive?>>(emptyList())
+    val messages: StateFlow<List<MessageReceive?>> = _messages
+    private var thirdUserId: String? = null
+    private var receiveChatId: String? = null
 
-    private val _latestMessage = MutableStateFlow<List<MessageReceive>>(emptyList())
-    val latestMessage: StateFlow<List<MessageReceive>> = _latestMessage
+    fun setUserId(userId: String?) {
+        this.thirdUserId = userId
+    }
+
+    fun setReceiveChatId(receiveChatId: String?) {
+        this.receiveChatId = receiveChatId
+    }
 
     init {
         viewModelScope.launch {
             ws.incoming.collect { message ->
-                println("Received message: $message")
-                println("Received message3: ${ws.decodeMessage(message,ListSerializer(MessageReceive.serializer()))}")
-                _latestMessage.value = ws.decodeMessage(message,ListSerializer(MessageReceive.serializer())).obj ?: emptyList()
+                try {
+                    println("You receive: $message")
+                    val newMessages= ws.decodeMessage(message, MessageWss.serializer()).obj?.message
+                    _messages.value = _messages.value + newMessages
+                }catch (e: Exception) {
+                    Log.e("MessageViewModel", "Error decoding message: $message", e)
+                }
             }
         }
     }
@@ -54,7 +67,7 @@ class MessageViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val response = apiService.getMessages(
                 mapOf<String, String?>(
-                    "chatId" to "689818117bd6a653310456a0",
+                    "chatId" to receiveChatId,
                 )
             )
             Log.d("MessageViewModel", "Response: $response")
@@ -67,9 +80,8 @@ class MessageViewModel @Inject constructor(
                         if (response.success) {
                             viewModelScope.launch {
                                 val clientFieldsList = response?.obj?.let { it }
-                                print("ClientFieldsList: $clientFieldsList")
                                 if (clientFieldsList != null) {
-                                    _message.value = clientFieldsList
+                                    _messages.value = clientFieldsList
                                 }
                             }
                             _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }
@@ -87,7 +99,7 @@ class MessageViewModel @Inject constructor(
     }
 
     val uiState: StateFlow<ChatUiState> =
-        combine(ws.state, ws.lastError, _message) { state, err, msgs ->
+        combine(ws.state, ws.lastError, _messages) { state, err, msgs ->
             ChatUiState(
                 disconnected = state == ConnectionState.Disconnected,
                 connected = state == ConnectionState.Connected,
@@ -101,8 +113,10 @@ class MessageViewModel @Inject constructor(
         ws.connect()
     }
 
-    fun send(text: String) {
-        if (text.isNotBlank()) ws.send(text)
+    fun send(content: String?) {
+        val msg = SendMessage(type = "send", content = content, userName = "exemplio", receiverId = thirdUserId, senderId = cache.credentialResponse()?.userId, chatId = receiveChatId)
+        val json = Json.encodeToString(SendMessage.serializer(), msg)
+        if (json.isNotBlank()) ws.send(json)
     }
 
     fun disconnect() {
@@ -113,45 +127,6 @@ class MessageViewModel @Inject constructor(
         super.onCleared()
         ws.close()
     }
-
-//    fun sendSMS() {
-//        loadingState(true)
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val response = apiService.sendMessage(
-//                Message(
-//                    content = "Hello, how can I help you?",
-//                    type = "text",
-//                    username = "user123",
-//                    receiver = "receiver123",
-//                    sender = "sender123",
-//                    chat = "chat123"
-//                )
-//            )
-//            Log.d("MessageViewModel", "Response: $response")
-//            val respuesta : VerifyPasswordResponse? = response.obj
-//            withContext(Dispatchers.Main) {
-//                GlobalScope.launch {
-//                    delay(500)
-//                    Log.d("MessageViewModel", "Respuesta: $respuesta")
-//                    if (respuesta != null) {
-//                        if (response.success) {
-//                            viewModelScope.launch {
-//                                val clientFieldsList = response?.obj
-////                                _message.value = clientFieldsList
-//                            }
-//                            _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }
-//                        } else {
-//                            Log.e("MessageViewModel", "Client failed: ${response.errorMessage}")
-//                            _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
-//                        }
-//                    } else {
-//                        _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
-//                    }
-//                    loadingState(false)
-//                }
-//            }
-//        }
-//    }
 
     private fun loadingState(isLoading: Boolean){
         _uiState.update { it.copy(isLoading = isLoading) }

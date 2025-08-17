@@ -104,9 +104,6 @@ fun BusinessScrenn(
                 onLogout = {
                     showModalSession.value = false;
                     businessViewModel.closeSession()
-                    GlobalNav.root?.navigate(Login) {
-                        popUpTo(Login) { inclusive = true }
-                    }
                 }
             )
         }

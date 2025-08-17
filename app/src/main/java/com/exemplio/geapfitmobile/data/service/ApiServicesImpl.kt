@@ -4,8 +4,8 @@ import Client
 import ClientsResponse
 import ErrorResponse
 import HttpUtil
-import Message
 import MessageReceive
+import SendMessage
 import android.util.Log
 import com.exemplio.geapfitmobile.utils.CacheService
 import com.exemplio.geapfitmobile.domain.entity.PasswordGrantEntity
@@ -223,7 +223,6 @@ class ApiServicesImpl(
                 if (!value.isNullOrEmpty()) addQueryParameter(key, value)
             }
         }.build()
-        println("Este es el finalUrl: $finalUrl")
         return httpCall(
             f = { client ->
                 val req = Request.Builder()
@@ -237,7 +236,7 @@ class ApiServicesImpl(
         )
     }
 
-    suspend fun sendMessage(request: Message): Resultado<VerifyPasswordResponse?> {
+    suspend fun sendMessage(request: SendMessage): Resultado<VerifyPasswordResponse?> {
         val path = StaticNamesPath.getMessages.path
         val uri = url(
             path,

@@ -3,10 +3,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MessageReceive(
-    val chat: String,
-    val sender: String? = null,
+    val chatId: String,
+    val senderId: String? = null,
     val content: String,
     val readBy: List<String> = emptyList(),
     val createdAt: String,
-    val receiver: String? = null,
+    val receiverId: String? = null,
+)
+
+@Serializable
+data class MessageWss(
+    val message: MessageReceive
 )

@@ -1,6 +1,7 @@
 package com.exemplio.geapfitmobile.data.service
 
 import com.exemplio.geapfitmobile.data.model.Resultado
+import com.exemplio.geapfitmobile.utils.CacheService
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,8 @@ import okhttp3.*
 enum class ConnectionState { Disconnected, Connecting, Connected, Closing, Closed, Failed }
 
 class WebSocketManager(
-    private val client: OkHttpClient = OkHttpClient()
+    private val client: OkHttpClient = OkHttpClient(),
+    cache: CacheService
 ) {
     private var webSocket: WebSocket? = null
 
@@ -23,7 +25,7 @@ class WebSocketManager(
 
     val state = MutableStateFlow(ConnectionState.Disconnected)
     val lastError = MutableStateFlow<Throwable?>(null)
-    private val url = "wss://express-mongo-cobq.onrender.com/ws"
+    private val url = "ws://192.168.0.108:3000/ws?userId=${cache.credentialResponse()?.userId}"
 
     fun <T> decodeMessage(json: String, serializer: KSerializer<T>): Resultado<T?> {
         return try {
@@ -40,7 +42,6 @@ class WebSocketManager(
         print("Connecting to WebSocket at $url with headers: $headers")
         state.value = ConnectionState.Connecting
         lastError.value = null
-
         val reqBuilder = Request.Builder().url(url)
         println("WebSocket reqBuilder URL: $reqBuilder")
         headers.forEach { (k, v) -> reqBuilder.addHeader(k, v) }
@@ -49,9 +50,6 @@ class WebSocketManager(
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(ws: WebSocket, response: Response) {
                 println("WebSocket connected: $response")
-//                val deviceId = "android-123"
-//                val type = "receive"
-
                 val helloJson = """{"type":"receive","chat":"689818117bd6a653310456a0"}"""
                 webSocket?.send(helloJson)
                 state.value = ConnectionState.Connected

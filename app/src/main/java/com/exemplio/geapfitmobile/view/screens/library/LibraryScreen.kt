@@ -113,9 +113,6 @@ fun LibraryScreen(
                 onLogout = {
                     showModalSession.value = false;
                     libraryViewModel.closeSession()
-                    GlobalNav.root?.navigate(Login) {
-                        popUpTo(Login) { inclusive = true }
-                    }
                 }
             )
         }

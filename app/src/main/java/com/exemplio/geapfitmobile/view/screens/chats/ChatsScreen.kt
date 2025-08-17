@@ -134,9 +134,6 @@ fun ChatsScreen(
                 onLogout = {
                     showModalSession.value = false;
                     chatsViewModel.closeSession()
-                    GlobalNav.root?.navigate(Login) {
-                        popUpTo(Login) { inclusive = true }
-                    }
                 }
             )
         }

@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.exemplio.geapfitmobile.view.core.navigation.Login
 
 @Composable
 fun ModalDialogError(message: String, onDismiss: () -> Unit) {
@@ -70,7 +71,12 @@ fun ModalDialogSession(message: String, onDismiss: () -> Unit, onLogout : () -> 
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = onLogout) {
+                    Button(onClick = {
+                        onLogout()
+                        GlobalNav.root?.navigate(Login) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }) {
                         Text("Si", color = MaterialTheme.colorScheme.onPrimary)
                     }
                 }

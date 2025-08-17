@@ -6,17 +6,9 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 data class VerifyPasswordResponse(
-    val username: String,
+    val userName: String,
     val userId: String,
-    val displayName: String,
+    val roleType: String,
     val email: String,
-    @SerialName("_id") val id: String,
-    val createdAt: String
-) {
-    fun toJson(): String = Json.encodeToString(serializer(), this)
-
-    companion object {
-        fun fromJson(json: String): VerifyPasswordResponse =
-            Json.decodeFromString(serializer(), json)
-    }
-}
+    val createdAt: String ? = null,
+)

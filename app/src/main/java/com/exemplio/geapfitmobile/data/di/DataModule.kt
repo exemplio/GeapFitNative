@@ -38,8 +38,8 @@ object DataModule {
     }
 
     @Provides
-    fun provideWebSocket(client: OkHttpClient): WebSocketManager {
-        return WebSocketManager(client)
+    fun provideWebSocket(client: OkHttpClient, context: Context): WebSocketManager {
+        return WebSocketManager(client, CacheService(context))
     }
 }
 
