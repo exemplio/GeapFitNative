@@ -83,10 +83,9 @@ fun AgendaScreen(agendaViewModel: AgendaViewModel = hiltViewModel()) {
                             .background(MaterialTheme.colorScheme.background)
                     ) {
                         CalendarKPIs()
-                        Column(modifier = Modifier.weight(1f)) {
+                        Column(modifier = Modifier.fillMaxSize().weight(1f)) {
                             Kalendar()
                         }
-                        Text("Prueba")
                     }
                 }
                 if (uiState.isLoading) {

@@ -123,8 +123,7 @@ class MessageViewModel @Inject constructor(
     }
 
     fun send(content: String?) {
-//        val msg = SendMessageModel(type = "send", content = content, userName = "exemplio", receiverId = thirdUserId, senderId = cache.credentialResponse()?.userId, chatId = receiveChatId)
-        val msg = SendMessageModel(type = "send", content = content, userName = "exemplio", receiverId = "d38a55bf-f691-461d-bac4-e7ffddac376b", senderId = cache.credentialResponse()?.userId, chatId = receiveChatId)
+        val msg = SendMessageModel(type = "send", content = content, userName = "exemplio", receiverId = thirdUserId, senderId = cache.credentialResponse()?.userId, chatId = receiveChatId)
         val json = Json.encodeToString(SendMessageModel.serializer(), msg)
         if (json.isNotBlank()) ws.send(json)
     }

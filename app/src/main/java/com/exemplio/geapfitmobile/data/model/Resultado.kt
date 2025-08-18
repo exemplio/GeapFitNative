@@ -12,21 +12,6 @@ data class Resultado<T>(
 ) {
 
     companion object {
-        fun <T> fail(error: Any?, stackTrace: Throwable?): Resultado<T> =
-            Resultado(
-                success = false,
-                error = error,
-                stackTrace = stackTrace,
-                errorMessage = stackTrace?.toString()
-            )
-
-        fun <T> failWithErrorMessage(errorMessage: String?, error: Any?, stackTrace: Throwable?): Resultado<T> =
-            Resultado(
-                success = false,
-                error = error,
-                stackTrace = stackTrace,
-                errorMessage = errorMessage
-            )
 
         fun <T> failMsg(errorMessage: String?, error: Int?): Resultado<T> =
             Resultado(
