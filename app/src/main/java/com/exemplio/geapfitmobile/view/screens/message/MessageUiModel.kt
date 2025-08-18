@@ -5,5 +5,7 @@ data class ChatUiState(
     val connected: Boolean = false,
     val connecting: Boolean = false,
     val messages: List<String> = emptyList(),
-    val lastError: String? = null
+    val lastError: String? = null,
+    var errorCode: Int? = null,
+    var errorMessage: String? = null,
 )

@@ -1,8 +1,8 @@
 package com.exemplio.geapfitmobile.view.screens.message
 
 
-import MessageReceive
-import SendMessage
+import ReceiveMessageModel
+import SendMessageModel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,8 +35,8 @@ class MessageViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ClientUiState())
-    private val _messages = MutableStateFlow<List<MessageReceive?>>(emptyList())
-    val messages: StateFlow<List<MessageReceive?>> = _messages
+    private val _messages = MutableStateFlow<List<ReceiveMessageModel?>>(emptyList())
+    val messages: StateFlow<List<ReceiveMessageModel?>> = _messages
     private var thirdUserId: String? = null
     private var receiveChatId: String? = null
 
@@ -44,8 +44,8 @@ class MessageViewModel @Inject constructor(
         this.thirdUserId = userId
     }
 
-    fun setReceiveChatId(receiveChatId: String?) {
-        this.receiveChatId = receiveChatId
+    fun setReceiveChatId(chatId: String?) {
+        this.receiveChatId = chatId
     }
 
     init {
@@ -54,6 +54,7 @@ class MessageViewModel @Inject constructor(
                 try {
                     println("You receive: $message")
                     val newMessages= ws.decodeMessage(message, MessageWss.serializer()).obj?.message
+                    println("Decoded messages: ${ws.decodeMessage(message, MessageWss.serializer())}")
                     _messages.value = _messages.value + newMessages
                 }catch (e: Exception) {
                     Log.e("MessageViewModel", "Error decoding message: $message", e)
@@ -62,16 +63,24 @@ class MessageViewModel @Inject constructor(
         }
     }
 
-    fun getMessages() {
+    fun getMessages(receiveData : String?) {
         loadingState(true)
         viewModelScope.launch(Dispatchers.IO) {
-            val response = apiService.getMessages(
-                mapOf<String, String?>(
-                    "chatId" to receiveChatId,
+            val response = if (receiveChatId=="empty") {
+                apiService.getMessages(
+                    mapOf<String, String?>(
+                        "userId" to receiveData,
+                    )
                 )
-            )
+            } else{
+                apiService.getMessages(
+                    mapOf<String, String?>(
+                        "chatId" to receiveData,
+                    )
+                )
+            }
             Log.d("MessageViewModel", "Response: $response")
-            val respuesta : List<MessageReceive>? = response.obj
+            val respuesta : List<ReceiveMessageModel>? = response.obj
             withContext(Dispatchers.Main) {
                 GlobalScope.launch {
                     delay(500)
@@ -105,7 +114,7 @@ class MessageViewModel @Inject constructor(
                 connected = state == ConnectionState.Connected,
                 connecting = state == ConnectionState.Connecting,
                 messages = listOf("a", "b", "c"),
-                lastError = err?.message
+                lastError = err?.message,
             )
         }.stateIn(viewModelScope, SharingStarted.Eagerly, ChatUiState())
 
@@ -114,8 +123,9 @@ class MessageViewModel @Inject constructor(
     }
 
     fun send(content: String?) {
-        val msg = SendMessage(type = "send", content = content, userName = "exemplio", receiverId = thirdUserId, senderId = cache.credentialResponse()?.userId, chatId = receiveChatId)
-        val json = Json.encodeToString(SendMessage.serializer(), msg)
+//        val msg = SendMessageModel(type = "send", content = content, userName = "exemplio", receiverId = thirdUserId, senderId = cache.credentialResponse()?.userId, chatId = receiveChatId)
+        val msg = SendMessageModel(type = "send", content = content, userName = "exemplio", receiverId = "d38a55bf-f691-461d-bac4-e7ffddac376b", senderId = cache.credentialResponse()?.userId, chatId = receiveChatId)
+        val json = Json.encodeToString(SendMessageModel.serializer(), msg)
         if (json.isNotBlank()) ws.send(json)
     }
 
@@ -136,12 +146,4 @@ class MessageViewModel @Inject constructor(
         apiService.closeSession()
     }
 }
-
-data class ClientUiState(
-    val isLoading: Boolean = false,
-    val initialState:Boolean = true,
-    var errorCode:Int? = null,
-    var errorMessage:String? = null,
-    var loaded:Boolean = false,
-)
 

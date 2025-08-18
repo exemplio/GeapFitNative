@@ -30,21 +30,14 @@ import com.exemplio.geapfitmobile.view.core.navigation.Login
 import com.exemplio.geapfitmobile.view.core.navigation.TabScreens
 import com.exemplio.geapfitmobile.view.core.navigation.TabScreens.TabContacts
 
-data class ChatItem(
-    val initials: String,
-    val name: String,
-    val date: String,
-    val lastMessage: String
-)
-
-val chats = listOf(
-    ChatItem("MO", "MATEO OPPEN", "01-03-2025", "Hola, bienvenido a GEAP ACADEMY! Es..."),
-    ChatItem("LL", "LAUTARO LOPEZ FERNANDEZ", "17-02-2025", "entrenamiento elite grupal"),
-    ChatItem("UH", "URIEL HENDLER", "12-02-2025", "Tenkiu"),
-    ChatItem("AB", "ADRIAN BLUM", "12-02-2025", "Welcome to the new app"),
-    ChatItem("SL", "SEBASTIÁN LIBERMAN", "11-02-2025", "Tipo medidas físicas, fotos bla bla"),
-    ChatItem("AG", "ALEJANDRO GONZÁLEZ ...", "10-02-2025", "entrenamiento elite grupal"),
-)
+//val chats = listOf(
+//    ChatItem("MO", "MATEO OPPEN", "01-03-2025", "Hola, bienvenido a GEAP ACADEMY! Es..."),
+//    ChatItem("LL", "LAUTARO LOPEZ FERNANDEZ", "17-02-2025", "entrenamiento elite grupal"),
+//    ChatItem("UH", "URIEL HENDLER", "12-02-2025", "Tenkiu"),
+//    ChatItem("AB", "ADRIAN BLUM", "12-02-2025", "Welcome to the new app"),
+//    ChatItem("SL", "SEBASTIÁN LIBERMAN", "11-02-2025", "Tipo medidas físicas, fotos bla bla"),
+//    ChatItem("AG", "ALEJANDRO GONZÁLEZ ...", "10-02-2025", "entrenamiento elite grupal"),
+//)
 
 @Composable
 fun ChatsScreen(
@@ -102,7 +95,7 @@ fun ChatsScreen(
                     MassMessageButton()
                     SearchField()
                     UnreadBanner(unreadCount = 0)
-                    ChatListSection(chats)
+                    ChatListSection(mockClients)
                 }
             }
             if (state.isLoading) {
@@ -289,7 +282,11 @@ fun ChatListItem(chat: ChatItem) {
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.background)
             .padding(12.dp)
-            .clickable { GlobalNav.root?.navigate(TabScreens.TabSingleChat) },
+            .clickable {
+                GlobalNav.root?.navigate("TabSingleChat/${chat.members?.get(0)?.userId}/${chat.chatId}") {
+                    popUpTo(Login) { inclusive = true }
+                }
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -299,18 +296,20 @@ fun ChatListItem(chat: ChatItem) {
                 .background(Color(0xFF703EFE)),
             contentAlignment = Alignment.Center
         ) {
-            Text(chat.initials, color = MaterialTheme.colorScheme.background, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            chat.initials?.let { Text(it, color = MaterialTheme.colorScheme.background, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
         }
         Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(chat.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(chat.lastMessage, fontSize = 14.sp, color = Color(0xFF757575), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            chat?.members?.get(0)?.userName?.let { Text(it, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
+            chat.lastMessage?.let { Text(it, fontSize = 14.sp, color = Color(0xFF757575), maxLines = 1, overflow = TextOverflow.Ellipsis) }
         }
-        Text(
-            chat.date,
-            fontSize = 13.sp,
-            color = Color(0xFFB0BEC5),
-            modifier = Modifier.padding(start = 8.dp)
-        )
+        chat.date?.let {
+            Text(
+                it,
+                fontSize = 13.sp,
+                color = Color(0xFFB0BEC5),
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
     }
 }

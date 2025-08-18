@@ -32,7 +32,6 @@ fun ModalDialogError(message: String, onDismiss: () -> Unit) {
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                println("PRUEBA SI PASA POR AQUI")
                 Text(text = "Error", style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = message, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)

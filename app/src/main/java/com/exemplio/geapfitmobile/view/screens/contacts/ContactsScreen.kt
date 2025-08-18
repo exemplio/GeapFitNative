@@ -130,7 +130,7 @@ fun ContactsListItem(client: Client) {
             .background(MaterialTheme.colorScheme.background)
             .padding(12.dp)
             .clickable {
-                GlobalNav.root?.navigate("TabSingleChat/${client.userId}") {
+                GlobalNav.root?.navigate("TabSingleChat/${client.userId.get(0)?.userId}/${"empty"}") {
                     popUpTo(Login) { inclusive = true }
                 }
             },

@@ -25,7 +25,8 @@ class WebSocketManager(
 
     val state = MutableStateFlow(ConnectionState.Disconnected)
     val lastError = MutableStateFlow<Throwable?>(null)
-    private val url = "ws://192.168.0.108:3000/ws?userId=${cache.credentialResponse()?.userId}"
+    private val url = "wss://express-mongo-cobq.onrender.com/ws?userId=${cache.credentialResponse()?.userId}"
+//    private val url = "ws://192.168.0.108:3000/ws?userId=${cache.credentialResponse()?.userId}"
 
     fun <T> decodeMessage(json: String, serializer: KSerializer<T>): Resultado<T?> {
         return try {

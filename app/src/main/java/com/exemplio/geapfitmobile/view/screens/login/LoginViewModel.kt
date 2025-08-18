@@ -93,8 +93,8 @@ class LoginViewModel @Inject constructor(val login: Login, private val cache: Ca
 }
 
 data class LoginUiState(
-    val email: String = "ricardo@prueba.com",
-    val password: String = "12345678",
+    val email: String = "",
+    val password: String = "",
     val isLoading: Boolean = false,
     val isLoginEnabled: Boolean = true,
     val isUserLogged:Boolean = false,

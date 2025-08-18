@@ -1,5 +1,6 @@
 package com.exemplio.geapfitmobile.view.screens.chats
 
+import ChatItem
 import Client
 import ClientsResponse
 import android.util.Log
@@ -23,22 +24,32 @@ class ChatsViewModel @Inject constructor(private val apiService: ApiServicesImpl
 
     private val _uiState = MutableStateFlow(ChatsUiState())
     val uiState: StateFlow<ChatsUiState> = _uiState
-    private val _chats = MutableStateFlow<List<Client>>(emptyList())
-    val chats: StateFlow<List<Client>> = _chats
+    private val _chats = MutableStateFlow<List<ChatItem>>(emptyList())
+    val chats: StateFlow<List<ChatItem>> = _chats
 
     fun getClients() {
         loadingState(true)
         viewModelScope.launch(Dispatchers.IO) {
-            val response = apiService.getClients()
+            val response = apiService.getChats()
             Log.d("ChatsViewModel", "Response: $response")
-            val respuesta : ClientsResponse? = response.obj
+            val respuesta : List<ChatItem>? = response.obj
             withContext(Dispatchers.Main) {
                 Log.d("ChatsViewModel", "Respuesta: $respuesta")
                 if (respuesta != null) {
                     if (response.success) {
                         viewModelScope.launch {
-                            val clientFieldsList = response?.obj?.data?.map { it } ?: emptyList()
-                            _chats.value = clientFieldsList
+                            val chatFieldList = response?.obj?.map { chat ->
+                                ChatItem(
+                                    name = chat.name,
+                                    lastMessage = chat.lastMessage,
+                                    chatId = chat.chatId,
+                                    date = chat.date,
+                                    members = chat.members
+                                )
+                            }
+                            if (chatFieldList != null) {
+                                _chats.value = chatFieldList
+                            }
                         }
                         _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }
                     } else {

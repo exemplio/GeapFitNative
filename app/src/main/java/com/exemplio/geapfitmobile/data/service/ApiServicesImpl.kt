@@ -1,18 +1,17 @@
 package com.exemplio.geapfitmobile.data.service
 
-import Client
+import ChatItem
 import ClientsResponse
 import ErrorResponse
 import HttpUtil
-import MessageReceive
-import SendMessage
+import ReceiveMessageModel
 import android.util.Log
 import com.exemplio.geapfitmobile.utils.CacheService
 import com.exemplio.geapfitmobile.domain.entity.PasswordGrantEntity
 import com.exemplio.geapfitmobile.data.model.Resultado
 import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
 import com.exemplio.geapfitmobile.utils.MyUtils
-import com.geapfit.utils.*
+import com.exemplio.geapfitmobile.utils.StaticNamesPath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.KSerializer
@@ -21,7 +20,6 @@ import kotlinx.serialization.json.Json
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.IOException
 
 class ApiServicesImpl(
     private val httpService: HttpServiceImpl,
@@ -208,7 +206,7 @@ class ApiServicesImpl(
         )
     }
 
-    suspend fun getMessages(queryParameters: Map<String, String?>?): Resultado<List<MessageReceive>?> {
+    suspend fun getMessages(queryParameters: Map<String, String?>?): Resultado<List<ReceiveMessageModel>?> {
         val path = StaticNamesPath.getMessages.path
         val uri = url(
             path,
@@ -217,12 +215,12 @@ class ApiServicesImpl(
         val headers = mapOf("Content-Type" to "application/json")
         val httpUrl = uri.getOrNull()
             ?: throw uri.exceptionOrNull() ?: Exception("Invalid URL")
-
         val finalUrl = httpUrl.newBuilder().apply {
             queryParameters?.forEach { (key, value) ->
                 if (!value.isNullOrEmpty()) addQueryParameter(key, value)
             }
         }.build()
+        println("Final url $finalUrl")
         return httpCall(
             f = { client ->
                 val req = Request.Builder()
@@ -232,19 +230,18 @@ class ApiServicesImpl(
                     .build()
                 client.newCall(req).execute()
             },
-            serializer = ListSerializer(MessageReceive.serializer())
+            serializer = ListSerializer(ReceiveMessageModel.serializer())
         )
     }
 
-    suspend fun sendMessage(request: SendMessage): Resultado<VerifyPasswordResponse?> {
-        val path = StaticNamesPath.getMessages.path
+    suspend fun getChats(): Resultado<List<ChatItem>?> {
+        val path = StaticNamesPath.getChats.path
         val uri = url(
             path,
 //            mapOf("key" to MyUtils.apiKey)
         )
+        val request = mapOf("members" to cache.credentialResponse()?.userId)
         val headers = mapOf("Content-Type" to "application/json")
-        val httpUrl = uri.getOrNull()
-            ?: throw uri.exceptionOrNull() ?: Exception("Invalid URL")
         return httpCall(
             f = { client ->
                 val mediaType = "application/json; charset=utf-8".toMediaType()
@@ -258,7 +255,7 @@ class ApiServicesImpl(
                     .build()
                 client.newCall(req).execute()
             },
-            serializer = VerifyPasswordResponse.serializer()
+            serializer = ListSerializer(ChatItem.serializer())
         )
     }
 }

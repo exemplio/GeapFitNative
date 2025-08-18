@@ -42,11 +42,13 @@ fun NavigationWrapper() {
             HomeScreen(principalNavHost)
         }
         composable(
-            route = "TabSingleChat/{thirdUserId}",
-            arguments = listOf(navArgument("thirdUserId") { type = NavType.StringType })
+            route = "TabSingleChat/{thirdUserId}/{receiveChatId}",
+            arguments = listOf(navArgument("thirdUserId") { type = NavType.StringType },
+                navArgument("receiveChatId") { type = NavType.StringType })
         ) { backStackEntry ->
             val thirdUserId = backStackEntry.arguments?.getString("thirdUserId")
-            MessageScreen(thirdUserId = thirdUserId)
+            val receiveChatId = backStackEntry.arguments?.getString("receiveChatId")
+            MessageScreen(thirdUserId = thirdUserId, receiveChatId = receiveChatId)
         }
         composable<TabContacts> {
             ContactsScreen()

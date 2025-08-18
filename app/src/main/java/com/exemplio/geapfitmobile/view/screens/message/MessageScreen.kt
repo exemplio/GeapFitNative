@@ -1,7 +1,7 @@
 package com.exemplio.geapfitmobile.view.screens.message
 
 import GlobalNav
-import MessageReceive
+import ReceiveMessageModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +43,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.exemplio.geapfitmobile.ui.theme.PurpleGrey80
+import com.exemplio.geapfitmobile.view.core.components.ModalDialogError
+import com.exemplio.geapfitmobile.view.core.components.ModalDialogSession
 import com.exemplio.geapfitmobile.view.core.components.TopBar
 
 @Composable
@@ -58,8 +60,12 @@ fun MessageScreen(
     val modalMessage = remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.connected) {
-        if (uiState.connected) {
-            messageViewModel.getMessages()
+        if (uiState.connected && receiveChatId != "empty") {
+            messageViewModel.getMessages(receiveChatId)
+        }else{
+            println("No hay chatId para recibir mensajes $thirdUserId")
+            println("No hay chatId para recibir mensajes $receiveChatId")
+            messageViewModel.getMessages(thirdUserId)
         }
     }
 
@@ -138,12 +144,38 @@ fun MessageScreen(
                         end.linkTo(parent.end)
                     }
             )
+            if (showModalErr.value) {
+                ModalDialogError(
+                    message = modalMessage.value,
+                    onDismiss = {
+                        showModalErr.value = false;
+                        modalMessage.value = ""
+                        uiState.errorCode = null
+                        uiState.errorMessage = null
+                    }
+                )
+            }
+            if (showModalSession.value) {
+                ModalDialogSession(
+                    message = "¿Desea cerrar sesión?",
+                    onDismiss = {
+                        showModalSession.value = false;
+                        modalMessage.value = ""
+                        uiState.errorCode = null
+                        uiState.errorMessage = null
+                    },
+                    onLogout = {
+                        showModalSession.value = false;
+                        messageViewModel.closeSession()
+                    }
+                )
+            }
         }
     }
 }
 
 @Composable
-fun MessageItem(message: MessageReceive?) {
+fun MessageItem(message: ReceiveMessageModel?) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(4.dp)) {
