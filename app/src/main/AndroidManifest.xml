@@ -12,14 +12,14 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_geapfit_title"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GeapfitMobile"
+        android:theme="@style/Theme.App.Starting"
         tools:targetApi="31"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.GeapfitMobile">
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
