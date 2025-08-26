@@ -10,10 +10,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,28 +29,21 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(title : String, onCloseSession: () -> Unit, goBack: () -> Unit) {
+fun TopBar(title: String?, onCloseSession: () -> Unit, goBack: () -> Unit) {
     TopAppBar(
         title = {
-            Text(
-                title,
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp
-            )
+            if (title != null) {
+                Text(
+                    title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp
+                )
+            }
         },
         navigationIcon = {
             Row {
                 IconButton(onClick = { goBack() }) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
-                }
-                Box(
-                    Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.background),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("DM", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                 }
             }
         },

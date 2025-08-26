@@ -73,7 +73,6 @@ class CacheService @Inject constructor(
 
     fun credentialResponse(): VerifyPasswordResponse? {
         return getObj("last_credentials") {
-            println("Esta en cache ${gson.fromJson(gson.toJson(it), VerifyPasswordResponse::class.java)}")
             gson.fromJson(gson.toJson(it), VerifyPasswordResponse::class.java)
         }
     }

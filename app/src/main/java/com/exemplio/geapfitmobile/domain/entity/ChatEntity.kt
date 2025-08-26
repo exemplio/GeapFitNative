@@ -11,7 +11,7 @@ data class ChatItem(
     val lastMessage: String ? = null,
     val chatId: String ? = null,
     val isGroup: Boolean ? = null,
-    val members: List<VerifyPasswordResponse> ? = null,
+    val members: VerifyPasswordResponse ? = null,
     val _id: String ? = null,
     val __v: Int ? = null,
 )

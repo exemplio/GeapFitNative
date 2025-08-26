@@ -10,10 +10,9 @@ object HttpUtil {
         error: ErrorResponse? = null,
         parsedJson: T? = null,
     ): Resultado<T?> {
-        val jsonElement = response.body
+        println("THIS IS THE RESPONSE: $response")
         return when (response.code) {
             200 -> {
-                println("HTTP response: $response")
                 if (parsedJson != null) {
                     Resultado.success(parsedJson)
                 } else {
@@ -22,7 +21,6 @@ object HttpUtil {
             }
 
             202, 422 -> {
-                println("Codigo de respuesta: ${response.code}")
                 val errorMsg = error?.error
                 var error = ""
                 if (errorMsg != null) {

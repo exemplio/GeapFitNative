@@ -90,8 +90,8 @@ fun ChatsScreen(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-                    Tabs(selectedTab) { selectedTab = it }
-                    CheckboxRow(showOnlyAssigned) { showOnlyAssigned = it }
+//                    Tabs(selectedTab) { selectedTab = it }
+//                    CheckboxRow(showOnlyAssigned) { showOnlyAssigned = it }
                     MassMessageButton()
                     SearchField()
                     UnreadBanner(unreadCount = 0)
@@ -283,7 +283,7 @@ fun ChatListItem(chat: ChatItem) {
             .background(MaterialTheme.colorScheme.background)
             .padding(12.dp)
             .clickable {
-                GlobalNav.root?.navigate("TabSingleChat/${chat.members?.get(0)?.userId}/${chat.chatId}") {
+                GlobalNav.root?.navigate("TabSingleChat/${chat.members?.userId}/${chat.chatId}") {
                     popUpTo(Login) { inclusive = true }
                 }
             },
@@ -300,7 +300,7 @@ fun ChatListItem(chat: ChatItem) {
         }
         Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            chat?.members?.get(0)?.userName?.let { Text(it, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
+            chat.members?.userName?.let { Text(it, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
             chat.lastMessage?.let { Text(it, fontSize = 14.sp, color = Color(0xFF757575), maxLines = 1, overflow = TextOverflow.Ellipsis) }
         }
         chat.date?.let {

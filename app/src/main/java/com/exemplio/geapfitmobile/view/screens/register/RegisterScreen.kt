@@ -30,6 +30,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +57,14 @@ fun RegisterScreen(registerViewModel: RegisterViewModel = hiltViewModel(), navig
     val uiState by registerViewModel.uiState.collectAsStateWithLifecycle()
     val showModal = remember { mutableStateOf(false) }
     val modalMessage = remember { mutableStateOf("") }
+
+    LaunchedEffect(uiState.errorCode, uiState.errorMessage) {
+        if (uiState.errorCode != null && uiState.errorCode != 200) {
+            modalMessage.value = uiState.errorMessage ?: "Error para conectar con el servidor"
+            showModal.value = true
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -87,18 +96,24 @@ fun RegisterScreen(registerViewModel: RegisterViewModel = hiltViewModel(), navig
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
+//                Spacer(Modifier.height(10.dp))
+//                CustomTextField(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    value = uiState.email,
+//                    label = stringResource(R.string.register_screen_title_name),
+//                    onValueChange = { registerViewModel.onEmailChanged(it) })
+//                Spacer(Modifier.height(10.dp))
+//                CustomTextField(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    value = uiState.email,
+//                    label = stringResource(R.string.register_screen_title_lastname),
+//                    onValueChange = { registerViewModel.onEmailChanged(it) })
                 Spacer(Modifier.height(10.dp))
                 CustomTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = uiState.email,
-                    label = stringResource(R.string.register_screen_title_name),
-                    onValueChange = { registerViewModel.onEmailChanged(it) })
-                Spacer(Modifier.height(10.dp))
-                CustomTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = uiState.email,
-                    label = stringResource(R.string.register_screen_title_lastname),
-                    onValueChange = { registerViewModel.onEmailChanged(it) })
+                    value = uiState.user,
+                    label = stringResource(R.string.register_screen_title_user),
+                    onValueChange = { registerViewModel.onUserChanged(it) })
                 Spacer(Modifier.height(10.dp))
                 CustomTextField(
                     modifier = Modifier.fillMaxWidth(),

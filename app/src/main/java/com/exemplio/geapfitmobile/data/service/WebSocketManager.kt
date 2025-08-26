@@ -81,7 +81,6 @@ class WebSocketManager(
     }
 
     fun send(text: String): Boolean {
-        println("Sending message: $text")
         val ok = webSocket?.send(text) ?: false
         if (!ok) lastError.value = IllegalStateException("WebSocket not connected")
         return ok

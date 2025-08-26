@@ -21,8 +21,6 @@ import com.exemplio.geapfitmobile.view.core.components.ModalDialogError
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogSession
 import com.exemplio.geapfitmobile.view.core.components.TopBar
 import com.exemplio.geapfitmobile.view.core.navigation.Login
-import com.exemplio.geapfitmobile.view.core.navigation.TabScreens
-import com.exemplio.geapfitmobile.view.core.navigation.TabScreens.TabChats
 import com.exemplio.geapfitmobile.view.screens.contacts.ContactsViewModel
 
 @Composable
@@ -56,7 +54,6 @@ fun ContactsScreen(
                 showModalSession.value = true
             },
             goBack = {
-                println(GlobalNav.bottom)
                 GlobalNav.navigateUpRoot()
             })
         },

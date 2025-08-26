@@ -7,7 +7,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
-import com.exemplio.geapfitmobile.view.screens.contacts.ClientUiState
 import com.geapfit.utils.translate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

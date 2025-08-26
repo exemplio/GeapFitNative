@@ -1,12 +1,11 @@
 package com.exemplio.geapfitmobile.view.screens.register
 
-import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
-import com.exemplio.geapfitmobile.domain.entity.PasswordGrantEntity
-import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
+import com.exemplio.geapfitmobile.domain.entity.RegisterEntity
+import com.exemplio.geapfitmobile.domain.entity.RoleType
 import com.geapfit.utils.translate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +20,15 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(val apiService: ApiServicesImpl): ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState:StateFlow<RegisterUiState> = _uiState
+
+    fun onUserChanged(user: String) {
+        _uiState.update { state ->
+            state.copy(
+                user = user,
+            )
+        }
+        verifyLogin()
+    }
 
     fun onEmailChanged(email: String) {
         _uiState.update { state ->
@@ -54,21 +62,18 @@ class RegisterViewModel @Inject constructor(val apiService: ApiServicesImpl): Vi
     fun onClickSelected() {
         loadingState(true)
         viewModelScope.launch(Dispatchers.IO) {
-            val body = PasswordGrantEntity(
+            val body = RegisterEntity(
                 email = _uiState.value.email,
                 password = _uiState.value.password,
+                roleType = RoleType.STANDARD,
+                userName = _uiState.value.user
             )
             val response = apiService.register(body)
-            Log.d("LoginViewModel", "Response: $response")
-            val respuesta : VerifyPasswordResponse? = response?.obj
             withContext(Dispatchers.Main) {
-                if (response != null) {
-                    if (response.success) {
-                        _uiState.update { it.copy(isUserLogged = true, errorCode = null, errorMessage = null) }
-                    } else {
-                        Log.e("LoginViewModel", "Login failed: ${response.errorMessage}")
-                        _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
-                    }
+                if (response.success) {
+                    _uiState.update { it.copy(isUserLogged = true, errorCode = null, errorMessage = null) }
+                } else {
+                    _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = response.error as Int?) }
                 }
                 loadingState(false)
             }
@@ -86,6 +91,7 @@ class RegisterViewModel @Inject constructor(val apiService: ApiServicesImpl): Vi
 data class RegisterUiState(
     val email: String = "",
     val password: String = "",
+    val user: String = "",
     val isLoading: Boolean = false,
     val isLoginEnabled: Boolean = true,
     val isUserLogged:Boolean = false,

@@ -8,4 +8,6 @@ data class ChatUiState(
     val lastError: String? = null,
     var errorCode: Int? = null,
     var errorMessage: String? = null,
+    val isLoading: Boolean = false,
+    var loaded:Boolean = false,
 )

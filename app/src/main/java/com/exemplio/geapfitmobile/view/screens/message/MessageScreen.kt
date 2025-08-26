@@ -2,6 +2,7 @@ package com.exemplio.geapfitmobile.view.screens.message
 
 import GlobalNav
 import ReceiveMessageModel
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,8 +18,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -63,8 +66,6 @@ fun MessageScreen(
         if (uiState.connected && receiveChatId != "empty") {
             messageViewModel.getMessages(receiveChatId)
         }else{
-            println("No hay chatId para recibir mensajes $thirdUserId")
-            println("No hay chatId para recibir mensajes $receiveChatId")
             messageViewModel.getMessages(thirdUserId)
         }
     }
@@ -100,102 +101,112 @@ fun MessageScreen(
 
     Scaffold(
         topBar = {
-            TopBar("Messages", onCloseSession = {
+            TopBar(thirdUserId, onCloseSession = {
                 showModalSession.value = true
             }, goBack = {
                 GlobalNav.navigateUpRoot()
             })
         },
     ){ padding ->
-        ConstraintLayout(
-            Modifier
-                .fillMaxSize()
-                .padding(padding)) {
-            val (messages, chatBox) = createRefs()
-            val listState = rememberLazyListState()
-            LaunchedEffect(mockSMS.size) {
-                println("Esto son los mensajes $mockSMS")
-                listState.animateScrollToItem(mockSMS.size)
-            }
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(messages) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(chatBox.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        height = Dimension.fillToConstraints
-                    },
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                items(mockSMS) { item ->
-                    MessageItem(item)
+        AnimatedContent(targetState = uiState) { state ->
+            if (!state.isLoading && state.loaded) {
+                ConstraintLayout(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+                    val (messages, chatBox) = createRefs()
+                    val listState = rememberLazyListState()
+                    LaunchedEffect(mockSMS.size) {
+                        listState.animateScrollToItem(mockSMS.size)
+                    }
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .constrainAs(messages) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(chatBox.top)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                                height = Dimension.fillToConstraints
+                            },
+                        contentPadding = PaddingValues(16.dp)
+                    ) {
+                        items(mockSMS) { item ->
+                            MessageItem(item, messageViewModel.userId)
+                        }
+                    }
+                    MessageBox(
+                        messageViewModel = messageViewModel,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .constrainAs(chatBox) {
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                            }
+                    )
                 }
             }
-            MessageBox(
-                messageViewModel=messageViewModel,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(chatBox) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
+            if (state.isLoading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
+        if (showModalErr.value) {
+            ModalDialogError(
+                message = modalMessage.value,
+                onDismiss = {
+                    showModalErr.value = false;
+                    modalMessage.value = ""
+                    uiState.errorCode = null
+                    uiState.errorMessage = null
+                }
             )
-            if (showModalErr.value) {
-                ModalDialogError(
-                    message = modalMessage.value,
-                    onDismiss = {
-                        showModalErr.value = false;
-                        modalMessage.value = ""
-                        uiState.errorCode = null
-                        uiState.errorMessage = null
-                    }
-                )
-            }
-            if (showModalSession.value) {
-                ModalDialogSession(
-                    message = "¿Desea cerrar sesión?",
-                    onDismiss = {
-                        showModalSession.value = false;
-                        modalMessage.value = ""
-                        uiState.errorCode = null
-                        uiState.errorMessage = null
-                    },
-                    onLogout = {
-                        showModalSession.value = false;
-                        messageViewModel.closeSession()
-                    }
-                )
-            }
+        }
+        if (showModalSession.value) {
+            ModalDialogSession(
+                message = "¿Desea cerrar sesión?",
+                onDismiss = {
+                    showModalSession.value = false;
+                    modalMessage.value = ""
+                    uiState.errorCode = null
+                    uiState.errorMessage = null
+                },
+                onLogout = {
+                    showModalSession.value = false;
+                    messageViewModel.closeSession()
+                }
+            )
         }
     }
 }
 
 @Composable
-fun MessageItem(message: ReceiveMessageModel?) {
+fun MessageItem(message: ReceiveMessageModel?, userId: String? = null) {
+    if (message?.senderId==userId){
+        message?.isFromMe = true
+    }
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(4.dp)) {
         Box(
             modifier = Modifier
-//                .align(if (message.isFromMe) Alignment.End else Alignment.Start)
-                .align(Alignment.Start)
-//                .clip(
-//                    RoundedCornerShape(
-//                        topStart = 48f,
-//                        topEnd = 48f,
-//                        bottomStart = if (message.isFromMe) 48f else 0f,
-//                        bottomEnd = if (message.isFromMe) 0f else 48f
-//                    )
-//                )
+                .align(if (message?.isFromMe == true) Alignment.End else Alignment.Start)
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 48f,
+                        topEnd = 48f,
+                        bottomStart = if (message?.isFromMe == true) 48f else 0f,
+                        bottomEnd = if (message?.isFromMe == true) 0f else 48f
+                    )
+                )
                 .background(PurpleGrey80)
                 .padding(16.dp)
         ) {
-//            print("Message content: ${message.content}")
-            Text(text = message?.content ?: "")
+            Text(text = message?.content ?: "", color = MaterialTheme.colorScheme.onPrimary)
         }
     }
 }
@@ -249,5 +260,6 @@ fun MessageBox(
 }
 
 fun onSendMessageClickListener(content: String? = null, messageViewModel: MessageViewModel) {
+    messageViewModel.addMessage( ReceiveMessageModel(content = content ?: "", isFromMe = true))
     messageViewModel.send(content)
 }

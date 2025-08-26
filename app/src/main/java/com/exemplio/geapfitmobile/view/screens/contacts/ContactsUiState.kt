@@ -3,9 +3,10 @@ package com.exemplio.geapfitmobile.view.screens.contacts
 import com.exemplio.geapfitmobile.domain.entity.UserEntity
 
 
-sealed class ContactsUiState {
-    object Initial : ContactsUiState()
-    object Loading : ContactsUiState()
-    data class Loaded(val usuarios: List<UserEntity>) : ContactsUiState()
-    data class Error(val message: String) : ContactsUiState()
-}
+data class ContactsUiState (
+    val isLoading: Boolean = false,
+    val initialState:Boolean = true,
+    var errorCode:Int? = null,
+    var errorMessage:String? = null,
+    var loaded:Boolean = false,
+)

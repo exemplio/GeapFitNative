@@ -7,7 +7,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.exemplio.geapfitmobile.data.service.ApiServicesImpl
-import com.exemplio.geapfitmobile.view.screens.client.ClientUiState
 import com.geapfit.utils.translate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,8 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ContactsViewModel @Inject constructor(private val apiService: ApiServicesImpl) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ClientUiState())
-    val uiState: StateFlow<ClientUiState> = _uiState
+    private val _uiState = MutableStateFlow(ContactsUiState())
+    val uiState: StateFlow<ContactsUiState> = _uiState
     private val _contacts = MutableStateFlow<List<Client>>(emptyList())
     val contacts: StateFlow<List<Client>> = _contacts
 
@@ -66,12 +65,4 @@ class ContactsViewModel @Inject constructor(private val apiService: ApiServicesI
         apiService.closeSession()
     }
 }
-
-data class ClientUiState(
-    val isLoading: Boolean = false,
-    val initialState:Boolean = true,
-    var errorCode:Int? = null,
-    var errorMessage:String? = null,
-    var loaded:Boolean = false,
-)
 

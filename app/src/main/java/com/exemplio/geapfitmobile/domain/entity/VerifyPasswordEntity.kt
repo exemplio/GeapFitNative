@@ -4,10 +4,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class VerifyPasswordResponse(
-    val userName: String,
-    val userId: String,
-    val roleType: String,
-    val email: String,
+    val userName: String ? = null,
+    val userId: String ? = null,
+    val roleType: String ? = null,
+    val email: String ? = null,
     val createdAt: String ? = null,
     val _id: String ? = null,
     val __v: Int ? = null,

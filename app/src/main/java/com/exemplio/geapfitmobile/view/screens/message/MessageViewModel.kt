@@ -37,6 +37,7 @@ class MessageViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ClientUiState())
     private val _messages = MutableStateFlow<List<ReceiveMessageModel?>>(emptyList())
     val messages: StateFlow<List<ReceiveMessageModel?>> = _messages
+    val userId = cache.credentialResponse()?.userId
     private var thirdUserId: String? = null
     private var receiveChatId: String? = null
 
@@ -48,13 +49,15 @@ class MessageViewModel @Inject constructor(
         this.receiveChatId = chatId
     }
 
+    fun addMessage(message: ReceiveMessageModel?) {
+        _messages.value = _messages.value + message
+    }
+
     init {
         viewModelScope.launch {
             ws.incoming.collect { message ->
                 try {
-                    println("You receive: $message")
                     val newMessages= ws.decodeMessage(message, MessageWss.serializer()).obj?.message
-                    println("Decoded messages: ${ws.decodeMessage(message, MessageWss.serializer())}")
                     _messages.value = _messages.value + newMessages
                 }catch (e: Exception) {
                     Log.e("MessageViewModel", "Error decoding message: $message", e)
@@ -115,6 +118,8 @@ class MessageViewModel @Inject constructor(
                 connecting = state == ConnectionState.Connecting,
                 messages = listOf("a", "b", "c"),
                 lastError = err?.message,
+                isLoading = _uiState.value.isLoading,
+                loaded = _uiState.value.loaded,
             )
         }.stateIn(viewModelScope, SharingStarted.Eagerly, ChatUiState())
 
@@ -123,7 +128,7 @@ class MessageViewModel @Inject constructor(
     }
 
     fun send(content: String?) {
-        val msg = SendMessageModel(type = "send", content = content, userName = "exemplio", receiverId = thirdUserId, senderId = cache.credentialResponse()?.userId, chatId = receiveChatId)
+        val msg = SendMessageModel(type = "send", content = content, userName = "exemplio", receiverId = thirdUserId, senderId = userId, chatId = receiveChatId)
         val json = Json.encodeToString(SendMessageModel.serializer(), msg)
         if (json.isNotBlank()) ws.send(json)
     }

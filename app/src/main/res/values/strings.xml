@@ -12,6 +12,7 @@
     <string name="register_screen_title_email">Registrarse</string>
     <string name="register_screen_title_name">Primer nombre</string>
     <string name="register_screen_title_lastname">Apellido</string>
+    <string name="register_screen_title_user">Usuario</string>
     <string name="register_screen_subtitle_email">Introduzca su correo electrónico.</string>
     <string name="register_screen_textfield_register_email">Correo electrónico</string>
     <string name="register_screen_button_next">Siguiente</string>

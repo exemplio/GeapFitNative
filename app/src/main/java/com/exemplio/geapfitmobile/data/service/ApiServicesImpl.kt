@@ -9,6 +9,7 @@ import android.util.Log
 import com.exemplio.geapfitmobile.utils.CacheService
 import com.exemplio.geapfitmobile.domain.entity.PasswordGrantEntity
 import com.exemplio.geapfitmobile.data.model.Resultado
+import com.exemplio.geapfitmobile.domain.entity.RegisterEntity
 import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
 import com.exemplio.geapfitmobile.utils.MyUtils
 import com.exemplio.geapfitmobile.utils.StaticNamesPath
@@ -76,7 +77,6 @@ class ApiServicesImpl(
                 }else{
                     result = Json.decodeFromString(serializer, response.body?.string() ?: "")
                 }
-                println("RESPONSE apiServicesImpl: $response")
                 HttpUtil.result(response, apiError, result).let { resultx ->
                     if (response.isSuccessful) {
                         Resultado.success(resultx.obj)
@@ -118,7 +118,7 @@ class ApiServicesImpl(
         )
     }
 
-    suspend fun register(request: PasswordGrantEntity): Resultado<VerifyPasswordResponse?> {
+    suspend fun register(request: RegisterEntity): Resultado<VerifyPasswordResponse?> {
         val path = StaticNamesPath.register.path
         val uri = urlAuth(
             path,
@@ -141,68 +141,6 @@ class ApiServicesImpl(
             serializer = VerifyPasswordResponse.serializer()
         )
     }
-
-//    suspend fun resendSign(param: CredentialEntity): Result<Any> {
-//        return try {
-//            val params = mapOf("app-id" to MyUtils.clientId, "email" to param)
-//            val headers = mapOf(
-//                "Content-Type" to "application/json",
-//                "Accept" to "application/json",
-//                "app-id" to MyUtils.clientId
-//            )
-//            val uri = url(
-//                "${MyUtils.type}${MyUtils.type}${StaticNamesPath.recover.path}",
-//                params
-//            )
-//            val httpUrl = uri.getOrNull()
-//                ?: return Result.failure(uri.exceptionOrNull() ?: Exception("Invalid URL"))
-//            val response = httpCall(
-//                f = { client ->
-//                    val req = Request.Builder()
-//                        .url(httpUrl)
-//                        .get()
-//                        .headers(headers.toHeaders())
-//                        .build()
-//                    client.newCall(req).execute()
-//                },
-//                parseJson = { json -> json }
-//            )
-//            Result.success(response)
-//        } catch (e: Exception) {
-//            Result.failure(e)
-//        }
-//    }
-
-//    suspend fun recoveryQuestions(param: String): Result<Any> {
-//        val params = mapOf("app-id" to MyUtils.clientId, "email" to param)
-//        val headers = mapOf(
-//            "Content-Type" to "application/json",
-//            "Accept" to "application/json",
-//            "app-id" to MyUtils.clientId
-//        )
-//        val uri = url(
-//            "${MyUtils.type}${MyUtils.type}${StaticNamesPath.recover.path}",
-//            params
-//        )
-//        val httpUrl = uri.getOrNull()
-//            ?: return Result.failure(uri.exceptionOrNull() ?: Exception("Invalid URL"))
-//        return try {
-//            val response = httpCall(
-//                f = { client ->
-//                    val req = Request.Builder()
-//                        .url(httpUrl)
-//                        .get()
-//                        .headers(headers.toHeaders())
-//                        .build()
-//                    client.newCall(req).execute()
-//                },
-//                parseJson = { json -> json }
-//            )
-//            Result.success(response)
-//        } catch (e: Exception) {
-//            Result.failure(e)
-//        }
-//    }
 
     fun closeSession(): Unit {
         cache.emptyCacheData()
@@ -244,7 +182,6 @@ class ApiServicesImpl(
                 if (!value.isNullOrEmpty()) addQueryParameter(key, value)
             }
         }.build()
-        println("Final url $finalUrl")
         return httpCall(
             f = { client ->
                 val req = Request.Builder()
