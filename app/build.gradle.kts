@@ -19,8 +19,8 @@ android {
         applicationId = "com.exemplio.geapfitmobile"
         minSdk = 26
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.0.6"
+        versionCode = 7
+        versionName = "1.0.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField ("String", "AUTH_ID", "\"dfb8aca9-5259-4582-ad81-9ffe0ae75ad3\"")

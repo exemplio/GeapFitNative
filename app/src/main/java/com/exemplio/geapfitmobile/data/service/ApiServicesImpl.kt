@@ -118,6 +118,30 @@ class ApiServicesImpl(
         )
     }
 
+    suspend fun register(request: PasswordGrantEntity): Resultado<VerifyPasswordResponse?> {
+        val path = StaticNamesPath.register.path
+        val uri = urlAuth(
+            path,
+//            mapOf("key" to MyUtils.apiKey)
+        )
+        val headers = mapOf("Content-Type" to "application/json")
+        return httpCall(
+            f = { client ->
+                val mediaType = "application/json; charset=utf-8".toMediaType()
+                val body = Json.encodeToString(request).toRequestBody(mediaType)
+                val httpUrl = uri.getOrNull()
+                    ?: throw uri.exceptionOrNull() ?: Exception("Invalid URL")
+                val req = Request.Builder()
+                    .url(httpUrl)
+                    .post(body)
+                    .headers(headers.toHeaders())
+                    .build()
+                client.newCall(req).execute()
+            },
+            serializer = VerifyPasswordResponse.serializer()
+        )
+    }
+
 //    suspend fun resendSign(param: CredentialEntity): Result<Any> {
 //        return try {
 //            val params = mapOf("app-id" to MyUtils.clientId, "email" to param)

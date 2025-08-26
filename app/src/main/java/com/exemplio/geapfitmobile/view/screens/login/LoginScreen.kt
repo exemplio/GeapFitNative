@@ -1,4 +1,4 @@
-package com.exemplio.geapfitmobile.view.auth.login
+package com.exemplio.geapfitmobile.view.screens.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,12 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.exemplio.geapfitmobile.R
+import com.exemplio.geapfitmobile.view.auth.login.LoginViewModel
 import com.exemplio.geapfitmobile.view.core.components.GeapButton
 import com.exemplio.geapfitmobile.view.core.components.CustomButtonSecondary
 import com.exemplio.geapfitmobile.view.core.components.CustomText
@@ -79,10 +81,12 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Image(
-                    modifier = Modifier.size(56.dp),
-                    painter = painterResource(R.drawable.ic_geapfit_title),
-                    contentDescription = "GeapFit logo header"
+                CustomText(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Iniciar sesión",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
                 )
                 Spacer(Modifier.height(10.dp))
                 CustomTextField(
@@ -119,7 +123,7 @@ fun LoginScreen(
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.4f)
                     )
                     Text(
-                        text = "   Or   ",
+                        text = "   O   ",
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 12.sp
                     )

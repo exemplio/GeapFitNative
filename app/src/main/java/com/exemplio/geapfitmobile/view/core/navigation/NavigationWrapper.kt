@@ -3,15 +3,13 @@ package com.exemplio.geapfitmobile.view.core.navigation
 import ContactsScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.exemplio.geapfitmobile.view.auth.login.LoginScreen
-import com.exemplio.geapfitmobile.view.auth.register.RegisterScreen
-import com.exemplio.geapfitmobile.view.core.navigation.TabScreens.TabSingleChat
+import com.exemplio.geapfitmobile.view.screens.login.LoginScreen
+import com.exemplio.geapfitmobile.view.screens.register.RegisterScreen
 import com.exemplio.geapfitmobile.view.core.navigation.TabScreens.TabContacts
 import com.exemplio.geapfitmobile.view.home.HomeScreen
 import com.exemplio.geapfitmobile.view.screens.message.MessageScreen
