@@ -35,7 +35,7 @@ class AgendaViewModel @Inject constructor(private val apiService: ApiServicesImp
             val respuesta : ClientsResponse? = response.obj
             withContext(Dispatchers.Main) {
                 GlobalScope.launch {
-                    delay(500)
+                    delay(250)
                     Log.d("AgendaViewModel", "Respuesta: $respuesta")
                     if (respuesta != null) {
                         if (response.success) {

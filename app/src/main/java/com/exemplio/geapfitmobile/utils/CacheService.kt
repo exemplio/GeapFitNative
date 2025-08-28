@@ -2,7 +2,7 @@ package com.exemplio.geapfitmobile.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
+import com.exemplio.geapfitmobile.domain.entity.UserEntity
 import com.geapfit.network.NetworkState
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -41,7 +41,7 @@ class CacheService @Inject constructor(
 
     fun getLastCredentials(): Any? {
         return getFromPrefs("last_credentials") {
-            gson.fromJson(it, VerifyPasswordResponse::class.java)
+            gson.fromJson(it, UserEntity::class.java)
         }
     }
 
@@ -71,9 +71,9 @@ class CacheService @Inject constructor(
         return null
     }
 
-    fun credentialResponse(): VerifyPasswordResponse? {
+    fun credentialResponse(): UserEntity? {
         return getObj("last_credentials") {
-            gson.fromJson(gson.toJson(it), VerifyPasswordResponse::class.java)
+            gson.fromJson(gson.toJson(it), UserEntity::class.java)
         }
     }
 
@@ -112,7 +112,7 @@ class CacheService @Inject constructor(
         return prefs.getString("keep_session_data", null)
     }
 
-    fun saveLastCredentials(credentials: VerifyPasswordResponse) {
+    fun saveLastCredentials(credentials: UserEntity) {
         savePrefs("last_credentials", credentials)
     }
 

@@ -1,4 +1,4 @@
-import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
+import com.exemplio.geapfitmobile.domain.entity.UserEntity
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -20,7 +20,7 @@ data class Pagination(
 @Serializable
 data class Client(
     val userName: String,
-    val userId: List<VerifyPasswordResponse>,
+    val userInfo: UserEntity,
     val displayName: String ? = null,
     val email: String,
     val createdAt: String ? = null,

@@ -283,7 +283,7 @@ fun ChatListItem(chat: ChatItem) {
             .background(MaterialTheme.colorScheme.background)
             .padding(12.dp)
             .clickable {
-                GlobalNav.root?.navigate("TabSingleChat/${chat.members?.userId}/${chat.chatId}") {
+                GlobalNav.root?.navigate("TabSingleChat/${chat.members?._id}/${chat.chatId}") {
                     popUpTo(Login) { inclusive = true }
                 }
             },

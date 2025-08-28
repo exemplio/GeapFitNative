@@ -5,7 +5,7 @@ import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.exemplio.geapfitmobile.utils.CacheService
-import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
+import com.exemplio.geapfitmobile.domain.entity.UserEntity
 import com.geapfit.utils.translate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -42,14 +42,14 @@ class LoginViewModel @Inject constructor(val login: Login, private val cache: Ca
         viewModelScope.launch(Dispatchers.IO) {
             val response = login.login(_uiState.value.email, _uiState.value.password)
             Log.d("LoginViewModel", "Response: $response")
-            val respuesta : VerifyPasswordResponse? = response?.obj
+            val respuesta : UserEntity? = response?.obj
             withContext(Dispatchers.Main) {
                 if (response != null) {
                     if (response.success) {
                         cache.saveLastCredentials(
-                            VerifyPasswordResponse(
+                            UserEntity(
                                 respuesta?.userName ?: "",
-                                respuesta?.userId ?: "",
+                                respuesta?._id ?: "",
                                 email = respuesta?.email ?: "",
                                 createdAt = respuesta?.createdAt ?: "",
                                 roleType = respuesta?.roleType ?: "",

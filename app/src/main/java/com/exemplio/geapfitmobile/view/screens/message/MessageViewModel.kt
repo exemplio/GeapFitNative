@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import kotlin.math.pow
 
 @HiltViewModel
 class MessageViewModel @Inject constructor(
@@ -37,9 +38,13 @@ class MessageViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ClientUiState())
     private val _messages = MutableStateFlow<List<ReceiveMessageModel?>>(emptyList())
     val messages: StateFlow<List<ReceiveMessageModel?>> = _messages
-    val userId = cache.credentialResponse()?.userId
+    val userId = cache.credentialResponse()?._id
     private var thirdUserId: String? = null
     private var receiveChatId: String? = null
+    private val _webSocketStatus = MutableStateFlow(ConnectionState.Disconnected)
+    val webSocketStatus: StateFlow<ConnectionState> = _webSocketStatus
+    private var reconnectAttempts = 0
+    private val maxReconnectDelay = 60_000L
 
     fun setUserId(userId: String?) {
         this.thirdUserId = userId
@@ -54,16 +59,45 @@ class MessageViewModel @Inject constructor(
     }
 
     init {
+        connectWebSocket()
+    }
+
+    private fun connectWebSocket() {
         viewModelScope.launch {
-            ws.incoming.collect { message ->
-                try {
-                    val newMessages= ws.decodeMessage(message, MessageWss.serializer()).obj?.message
-                    _messages.value = _messages.value + newMessages
-                }catch (e: Exception) {
-                    Log.e("MessageViewModel", "Error decoding message: $message", e)
+            _webSocketStatus.value = if (reconnectAttempts == 0) ConnectionState.Disconnected else ConnectionState.Connecting
+            try {
+                ws.connect()
+                _webSocketStatus.value = ConnectionState.Connected
+                ws.incoming.collect { message ->
+                    try {
+                        val newMessages = ws.decodeMessage(message, MessageWss.serializer()).obj?.message
+                        if (newMessages != null) {
+                            _messages.value = _messages.value + newMessages
+                        }
+                    } catch (e: Exception) {
+                        Log.e("MessageViewModel", "Error decoding message: $message", e)
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e("MessageViewModel", "WebSocket failure: ${e.message}", e)
+                _webSocketStatus.value = ConnectionState.Failed
+                reconnectWithBackoff()
             }
         }
+    }
+
+    private fun reconnectWithBackoff() {
+        viewModelScope.launch {
+            reconnectAttempts++
+            val delayMillis = (2.0.pow(reconnectAttempts.toDouble()) * 1000L).toLong().coerceAtMost(maxReconnectDelay)
+            delay(delayMillis)
+            connectWebSocket()
+        }
+    }
+
+    fun manualReconnect() {
+        reconnectAttempts = 0
+        connectWebSocket()
     }
 
     fun getMessages(receiveData : String?) {
@@ -83,25 +117,24 @@ class MessageViewModel @Inject constructor(
                 )
             }
             Log.d("MessageViewModel", "Response: $response")
-            val respuesta : List<ReceiveMessageModel>? = response.obj
             withContext(Dispatchers.Main) {
                 GlobalScope.launch {
-                    delay(500)
-                    Log.d("MessageViewModel", "Respuesta: $respuesta")
-                    if (respuesta != null) {
-                        if (response.success) {
+                    delay(250)
+                    Log.d("MessageViewModel", "Respuesta: $response")
+                    if (response.success) {
+                        println("Deberia updatear loaded true2")
+                        if (response.obj?.isEmpty() ?: true) {
                             viewModelScope.launch {
-                                val clientFieldsList = response?.obj?.let { it }
-                                if (clientFieldsList != null) {
-                                    _messages.value = clientFieldsList
+                                val messagesList = response?.obj?.let { it }
+                                if (messagesList != null) {
+                                    _messages.value = messagesList
                                 }
                             }
-                            _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null) }
-                        } else {
-                            Log.e("MessageViewModel", "Client failed: ${response.errorMessage}")
-                            _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
                         }
+                        loadingState(false)
+                        _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null, isLoading = false) }
                     } else {
+                        Log.e("MessageViewModel", "Client failed: ${response.errorMessage}")
                         _uiState.update { it.copy(errorMessage = translate(response.errorMessage), errorCode = 202) }
                     }
                     loadingState(false)

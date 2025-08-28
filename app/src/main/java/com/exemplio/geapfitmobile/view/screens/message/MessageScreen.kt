@@ -45,6 +45,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.exemplio.geapfitmobile.data.service.ConnectionState
 import com.exemplio.geapfitmobile.ui.theme.PurpleGrey80
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogError
 import com.exemplio.geapfitmobile.view.core.components.ModalDialogSession
@@ -61,6 +62,7 @@ fun MessageScreen(
     val showModalErr = remember { mutableStateOf(false) }
     val showModalSession = remember { mutableStateOf(false) }
     val modalMessage = remember { mutableStateOf("") }
+    val wsStatus by messageViewModel.webSocketStatus.collectAsState()
 
     LaunchedEffect(uiState.connected) {
         if (uiState.connected && receiveChatId != "empty") {
@@ -70,7 +72,14 @@ fun MessageScreen(
         }
     }
 
+    LaunchedEffect(uiState.connecting) {
+        if (uiState.connecting) {
+            println("Conectando...")
+        }
+    }
+
     LaunchedEffect(uiState.disconnected) {
+        println("Se desconectó")
         if (uiState.disconnected) {
             messageViewModel.connect()
         }
@@ -89,7 +98,7 @@ fun MessageScreen(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> messageViewModel.connect()
-                Lifecycle.Event.ON_STOP -> {/* Optionally disconnect */}
+                Lifecycle.Event.ON_STOP -> messageViewModel.disconnect()
                 else -> {}
             }
         }
@@ -108,52 +117,67 @@ fun MessageScreen(
             })
         },
     ){ padding ->
-        AnimatedContent(targetState = uiState) { state ->
-            if (!state.isLoading && state.loaded) {
-                ConstraintLayout(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                ) {
-                    val (messages, chatBox) = createRefs()
-                    val listState = rememberLazyListState()
-                    LaunchedEffect(mockSMS.size) {
-                        listState.animateScrollToItem(mockSMS.size)
-                    }
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .constrainAs(messages) {
-                                top.linkTo(parent.top)
-                                bottom.linkTo(chatBox.top)
-                                start.linkTo(parent.start)
-                                end.linkTo(parent.end)
-                                height = Dimension.fillToConstraints
-                            },
-                        contentPadding = PaddingValues(16.dp)
-                    ) {
-                        items(mockSMS) { item ->
-                            MessageItem(item, messageViewModel.userId)
+        when (wsStatus) {
+            ConnectionState.Connected -> {
+                AnimatedContent(targetState = uiState) { state ->
+                    if (!state.isLoading && state.loaded) {
+                        ConstraintLayout(
+                            Modifier
+                                .fillMaxSize()
+                                .padding(padding)
+                        ) {
+                            val (messages, chatBox) = createRefs()
+                            val listState = rememberLazyListState()
+                            LaunchedEffect(mockSMS.size) {
+                                listState.animateScrollToItem(mockSMS.size)
+                            }
+                            LazyColumn(
+                                state = listState,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .constrainAs(messages) {
+                                        top.linkTo(parent.top)
+                                        bottom.linkTo(chatBox.top)
+                                        start.linkTo(parent.start)
+                                        end.linkTo(parent.end)
+                                        height = Dimension.fillToConstraints
+                                    },
+                                contentPadding = PaddingValues(16.dp)
+                            ) {
+                                items(mockSMS) { item ->
+                                    MessageItem(item, messageViewModel.userId)
+                                }
+                            }
+                            MessageBox(
+                                messageViewModel = messageViewModel,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .constrainAs(chatBox) {
+                                        bottom.linkTo(parent.bottom)
+                                        start.linkTo(parent.start)
+                                        end.linkTo(parent.end)
+                                    }
+                            )
                         }
                     }
-                    MessageBox(
-                        messageViewModel = messageViewModel,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .constrainAs(chatBox) {
-                                bottom.linkTo(parent.bottom)
-                                start.linkTo(parent.start)
-                                end.linkTo(parent.end)
-                            }
-                    )
+                    if (state.isLoading) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
             }
-            if (state.isLoading) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+            ConnectionState.Connecting -> {
+                Text("Reconnecting...")
             }
+            ConnectionState.Disconnected -> {
+                Text("Reconnecting...")
+            }
+            ConnectionState.Failed -> {
+                messageViewModel.manualReconnect()
+                Text("Connection failed. Tap to retry.")
+            }
+            else -> { Text("Disconnected") }
         }
         if (showModalErr.value) {
             ModalDialogError(

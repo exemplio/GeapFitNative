@@ -35,7 +35,7 @@ class ClientViewModel @Inject constructor(private val apiService: ApiServicesImp
             val respuesta : ClientsResponse? = response.obj
             withContext(Dispatchers.Main) {
                 GlobalScope.launch {
-                    delay(500)
+                    delay(250)
                     Log.d("ClientViewModel", "Respuesta: $respuesta")
                     if (respuesta != null) {
                         if (response.success) {
@@ -65,12 +65,3 @@ class ClientViewModel @Inject constructor(private val apiService: ApiServicesImp
         apiService.closeSession()
     }
 }
-
-data class ClientUiState(
-    val isLoading: Boolean = false,
-    val initialState:Boolean = true,
-    var errorCode:Int? = null,
-    var errorMessage:String? = null,
-    var loaded:Boolean = false,
-)
-

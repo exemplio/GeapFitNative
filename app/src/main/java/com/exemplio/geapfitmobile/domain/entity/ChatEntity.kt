@@ -1,4 +1,4 @@
-import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
+import com.exemplio.geapfitmobile.domain.entity.UserEntity
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,7 +11,7 @@ data class ChatItem(
     val lastMessage: String ? = null,
     val chatId: String ? = null,
     val isGroup: Boolean ? = null,
-    val members: VerifyPasswordResponse ? = null,
+    val members: UserEntity ? = null,
     val _id: String ? = null,
     val __v: Int ? = null,
 )

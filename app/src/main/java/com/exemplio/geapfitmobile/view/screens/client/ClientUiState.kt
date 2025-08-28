@@ -1,11 +1,9 @@
-package com.exemplio.geapfitmobile.view.home.screens.client
+package com.exemplio.geapfitmobile.view.screens.client
 
-import com.exemplio.geapfitmobile.domain.entity.UserEntity
-
-
-sealed class ClientUiState {
-    object Initial : ClientUiState()
-    object Loading : ClientUiState()
-    data class Loaded(val usuarios: List<UserEntity>) : ClientUiState()
-    data class Error(val message: String) : ClientUiState()
-}
+data class ClientUiState(
+    val isLoading: Boolean = false,
+    val initialState:Boolean = true,
+    var errorCode:Int? = null,
+    var errorMessage:String? = null,
+    var loaded:Boolean = false,
+)

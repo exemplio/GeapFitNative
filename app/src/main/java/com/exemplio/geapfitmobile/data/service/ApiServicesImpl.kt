@@ -10,7 +10,7 @@ import com.exemplio.geapfitmobile.utils.CacheService
 import com.exemplio.geapfitmobile.domain.entity.PasswordGrantEntity
 import com.exemplio.geapfitmobile.data.model.Resultado
 import com.exemplio.geapfitmobile.domain.entity.RegisterEntity
-import com.exemplio.geapfitmobile.domain.entity.VerifyPasswordResponse
+import com.exemplio.geapfitmobile.domain.entity.UserEntity
 import com.exemplio.geapfitmobile.utils.MyUtils
 import com.exemplio.geapfitmobile.utils.StaticNamesPath
 import kotlinx.coroutines.Dispatchers
@@ -94,7 +94,7 @@ class ApiServicesImpl(
         }
     }
 
-    suspend fun passwordGrant(request: PasswordGrantEntity): Resultado<VerifyPasswordResponse?> {
+    suspend fun passwordGrant(request: PasswordGrantEntity): Resultado<UserEntity?> {
         val path = StaticNamesPath.passwordGrant.path
         val uri = urlAuth(
             path,
@@ -114,11 +114,11 @@ class ApiServicesImpl(
                     .build()
                 client.newCall(req).execute()
             },
-            serializer = VerifyPasswordResponse.serializer()
+            serializer = UserEntity.serializer()
         )
     }
 
-    suspend fun register(request: RegisterEntity): Resultado<VerifyPasswordResponse?> {
+    suspend fun register(request: RegisterEntity): Resultado<UserEntity?> {
         val path = StaticNamesPath.register.path
         val uri = urlAuth(
             path,
@@ -138,7 +138,7 @@ class ApiServicesImpl(
                     .build()
                 client.newCall(req).execute()
             },
-            serializer = VerifyPasswordResponse.serializer()
+            serializer = UserEntity.serializer()
         )
     }
 
@@ -201,7 +201,7 @@ class ApiServicesImpl(
             path,
 //            mapOf("key" to MyUtils.apiKey)
         )
-        val request = mapOf("members" to cache.credentialResponse()?.userId)
+        val request = mapOf("members" to cache.credentialResponse()?._id)
         val headers = mapOf("Content-Type" to "application/json")
         return httpCall(
             f = { client ->
