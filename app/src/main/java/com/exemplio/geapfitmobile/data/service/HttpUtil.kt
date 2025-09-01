@@ -10,7 +10,6 @@ object HttpUtil {
         error: ErrorResponse? = null,
         parsedJson: T? = null,
     ): Resultado<T?> {
-        println("THIS IS THE RESPONSE: $response")
         return when (response.code) {
             200 -> {
                 if (parsedJson != null) {

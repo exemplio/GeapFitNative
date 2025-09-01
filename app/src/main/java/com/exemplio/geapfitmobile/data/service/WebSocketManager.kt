@@ -25,8 +25,8 @@ class WebSocketManager(
 
     val state = MutableStateFlow(ConnectionState.Disconnected)
     val lastError = MutableStateFlow<Throwable?>(null)
-//    private val url = "wss://express-mongo-cobq.onrender.com/ws?userId=${cache.credentialResponse()?._id}"
-    private val url = "ws://192.168.0.108:3000/ws?userId=${cache.credentialResponse()?._id}"
+    private val url = "wss://express-mongo-cobq.onrender.com/ws?userId=${cache.credentialResponse()?._id}"
+//    private val url = "ws://192.168.0.108:3000/ws?userId=${cache.credentialResponse()?._id}"
 
     fun <T> decodeMessage(json: String, serializer: KSerializer<T>): Resultado<T?> {
         return try {
@@ -51,8 +51,6 @@ class WebSocketManager(
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(ws: WebSocket, response: Response) {
                 println("WebSocket connected: $response")
-                val helloJson = """{"type":"receive","chat":"689818117bd6a653310456a0"}"""
-                webSocket?.send(helloJson)
                 state.value = ConnectionState.Connected
             }
 
@@ -81,6 +79,7 @@ class WebSocketManager(
     }
 
     fun send(text: String): Boolean {
+        println("WebSocket sending message: $text")
         val ok = webSocket?.send(text) ?: false
         if (!ok) lastError.value = IllegalStateException("WebSocket not connected")
         return ok

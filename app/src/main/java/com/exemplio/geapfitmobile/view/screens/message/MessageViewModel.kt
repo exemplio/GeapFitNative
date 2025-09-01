@@ -75,11 +75,11 @@ class MessageViewModel @Inject constructor(
                             _messages.value = _messages.value + newMessages
                         }
                     } catch (e: Exception) {
-                        Log.e("MessageViewModel", "Error decoding message: $message", e)
+                        Log.e("MessageViewModel2", "Error decoding message: $message", e)
                     }
                 }
             } catch (e: Exception) {
-                Log.e("MessageViewModel", "WebSocket failure: ${e.message}", e)
+                Log.e("MessageViewModel3", "WebSocket failure: ${e.message}", e)
                 _webSocketStatus.value = ConnectionState.Failed
                 reconnectWithBackoff()
             }
@@ -116,22 +116,20 @@ class MessageViewModel @Inject constructor(
                     )
                 )
             }
-            Log.d("MessageViewModel", "Response: $response")
             withContext(Dispatchers.Main) {
                 GlobalScope.launch {
-                    delay(250)
                     Log.d("MessageViewModel", "Respuesta: $response")
+                    loadingState(false)
                     if (response.success) {
                         println("Deberia updatear loaded true2")
-                        if (response.obj?.isEmpty() ?: true) {
+                        if (response.obj?.isEmpty() == false) {
                             viewModelScope.launch {
-                                val messagesList = response?.obj?.let { it }
+                                val messagesList = response.obj
                                 if (messagesList != null) {
                                     _messages.value = messagesList
                                 }
                             }
                         }
-                        loadingState(false)
                         _uiState.update { it.copy(loaded = true, errorCode = null, errorMessage = null, isLoading = false) }
                     } else {
                         Log.e("MessageViewModel", "Client failed: ${response.errorMessage}")
